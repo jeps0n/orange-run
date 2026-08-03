@@ -27,22 +27,26 @@ export function setupInput(scene) {
 
     cursors = scene.input.keyboard.createCursorKeys();
 
+    // Create the visual joystick base (outer circle).
+    // This is only a UI element and does not control player movement.
     joystickVisual.base = scene.add.circle(
-        0,
-        0,
-        joystickVisual.radius,
-        0xffffff,
-        0.25
+        0,                       // Starting x position (updated when touch begins)
+        0,                       // Starting y position (updated when touch begins)
+        joystickVisual.radius,   // Size of the joystick movement area
+        0xffffff,                // White color
+        0.25                     // Transparency (alpha)
     );
 
+
+    // Create the visual joystick thumb (inner circle).
+    // This follows the player's finger position within the joystick radius.
     joystickVisual.thumb = scene.add.circle(
-        0,
-        0,
-        18,
-        0xffffff,
-        0.5
+        0,       // Starting x position
+        0,       // Starting y position
+        18,      // Thumb size
+        0xffffff,// White color
+        0.5      // Transparency (alpha)
     );
-
     joystickVisual.base.setVisible(false);
     joystickVisual.thumb.setVisible(false);
 
@@ -63,6 +67,15 @@ export function setupInput(scene) {
         joystickVisual.thumb
         .setPosition(pointer.x, pointer.y)
         .setVisible(true);
+
+        scene.tweens.add({
+        targets: [
+            joystickVisual.base,
+            joystickVisual.thumb
+        ],
+            alpha: 1,
+            duration: 150
+        });
     });
     
     // Update finger position while the player is holding the screen.
@@ -75,8 +88,19 @@ export function setupInput(scene) {
 
     scene.input.on("pointerup", () => {
         touchActive = false;
-        joystickVisual.base.setVisible(false);
-        joystickVisual.thumb.setVisible(false);
+
+        scene.tweens.add({
+            targets: [
+                joystickVisual.base,
+                joystickVisual.thumb
+            ],
+            alpha: 0,
+            duration: 200,
+            onComplete: () => {
+                joystickVisual.base.setVisible(false);
+                joystickVisual.thumb.setVisible(false);
+            }
+        });
     });
 }
 

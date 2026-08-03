@@ -115,8 +115,6 @@ function create() {
     }
   );
 
-  
-
   // Create the player object
   player = this.add.rectangle(
     320, // x position
