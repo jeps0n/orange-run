@@ -1,18 +1,16 @@
 import Phaser from "phaser";
 import "./style.css";
 import { setupInput, getMovement, getInputDebug } from "./input.js";
+import { Player } from "./entities/Player.js";
 
 
 
 // Player reference
-// Allows update() to control the player created in create()
 let player;
 
 // Obstacle reference
 let obstacle;
 
-// Controls player movement speed
-const playerSpeed = 250;
 
 const gameWidth = 640;
 const gameHeight = 480;
@@ -75,6 +73,12 @@ function create() {
   score = 0;
   obstacleSpeed = 120;
 
+  player = new Player(
+    this,
+    320,
+    240
+  );
+
   scoreText = this.add.text(
     20,
     20,
@@ -115,21 +119,6 @@ function create() {
     }
   );
 
-  // Create the player object
-  player = this.add.rectangle(
-    320, // x position
-    240, // y position
-    50, // width
-    50, // height
-    0xff8800 // orange color
-  );
-
-  // Add physics so the player object can move
-  this.physics.add.existing(player);
-
-  // Keep the player object inside the game window
-  player.body.setCollideWorldBounds(true);
-
   // Create falling obstacle
   obstacle = this.add.rectangle(
     320,    // x position (middle of 640 width)
@@ -150,11 +139,11 @@ function create() {
 
   // Watch for collisions between the player and obstacle
   this.physics.add.overlap(
-    player,
-    obstacle,
-    playerHitObstacle,
-    null,
-    this
+      player.sprite,
+      obstacle,
+      playerHitObstacle,
+      null,
+      this
   );
 
   // Create game over background panel
@@ -235,9 +224,9 @@ function update() {
     movement.y /= length;
   }
 
-  player.body.setVelocity(
-    movement.x * playerSpeed,
-    movement.y * playerSpeed
+  player.sprite.body.setVelocity(
+      movement.x * player.speed,
+      movement.y * player.speed
   );
 
   // Reset obstacle when it leaves the screen
@@ -254,8 +243,8 @@ function update() {
     obstacle.body.setVelocityY(obstacleSpeed);
   }
   xyText.setText(
-    `vx: ${Math.round(player.body.velocity.x)}\n` +
-    `vy: ${Math.round(player.body.velocity.y)}`
+    `vx: ${Math.round(player.sprite.body.velocity.x)}\n` +
+    `vy: ${Math.round(player.sprite.body.velocity.y)}`
   );
 
   fpsText.setText(
@@ -283,7 +272,7 @@ function update() {
 
 function playerHitObstacle() {
   gameOver = true;
-  player.body.setVelocity(0, 0);
+  player.sprite.body.setVelocity(0, 0);
   gameOverPanel.setVisible(true);
   gameOverTitle.setVisible(true);
   restartText.setVisible(true);
