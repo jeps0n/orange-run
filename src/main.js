@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import "./style.css";
 
+let player;
+
 const config = {
     type: Phaser.AUTO,
 
@@ -9,21 +11,60 @@ const config = {
 
     backgroundColor: "#1b1b1b",
 
+    physics: {
+        default: "arcade",
+        arcade: {
+            debug: false
+        }
+    },
+
     scene: {
-        create
+        create,
+        update
     }
 };
 
 new Phaser.Game(config);
 
+
 function create() {
-    this.add.text(
+    // Create player as a blue square
+    player = this.add.rectangle(
+        400,
         300,
-        280,
-        "DODGE GAME",
-        {
-            fontSize: "48px",
-            color: "#ffffff"
-        }
+        50,
+        50,
+        0x00aaff
     );
+
+    // Enable physics on the player
+    this.physics.add.existing(player);
+
+    player.body.setCollideWorldBounds(true);
+
+    // Add keyboard controls
+    this.cursors = this.input.keyboard.createCursorKeys();
+}
+
+
+function update() {
+    const speed = 250;
+
+    player.body.setVelocity(0);
+
+    if (this.cursors.left.isDown) {
+        player.body.setVelocityX(-speed);
+    }
+
+    if (this.cursors.right.isDown) {
+        player.body.setVelocityX(speed);
+    }
+
+    if (this.cursors.up.isDown) {
+        player.body.setVelocityY(-speed);
+    }
+
+    if (this.cursors.down.isDown) {
+        player.body.setVelocityY(speed);
+    }
 }
