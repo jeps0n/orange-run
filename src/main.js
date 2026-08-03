@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import "./style.css";
 import { setupInput, getMovement, getInputDebug } from "./input.js";
 import { Player } from "./entities/Player.js";
-
+import { updateMovement } from "./systems/movement.js";
 
 
 // Player reference
@@ -210,23 +210,11 @@ function update() {
     return;
   }
 
-  // Get input direction from input.js
   const movement = getMovement();
 
-  // Normalize diagonal movement so all directions have the same speed
-  const length = Math.sqrt(
-    movement.x * movement.x +
-    movement.y * movement.y
-  );
-
-  if (length > 0) {
-    movement.x /= length;
-    movement.y /= length;
-  }
-
-  player.sprite.body.setVelocity(
-      movement.x * player.speed,
-      movement.y * player.speed
+  updateMovement(
+      player,
+      movement
   );
 
   // Reset obstacle when it leaves the screen
