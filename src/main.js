@@ -26,6 +26,11 @@ let restartText;
 
 let restartKey;
 
+let score = 0;
+let scoreText;
+
+let obstacleSpeed = 120;
+
 // =====================
 // Game Configuration
 // =====================
@@ -63,6 +68,18 @@ new Phaser.Game(config);
 function create() {
   // Reset game state
   gameOver = false;
+  score = 0;
+  obstacleSpeed = 120;
+
+  scoreText = this.add.text(
+    20,
+    20,
+    "Score: 0",
+    {
+      fontSize: "24px",
+      fill: "#ffffff"
+    }
+  );
 
   // Create the player object
   player = this.add.rectangle(
@@ -92,7 +109,7 @@ function create() {
   this.physics.add.existing(obstacle);
 
   // Move the obstacle downward
-  obstacle.body.setVelocityY(120);
+  obstacle.body.setVelocityY(obstacleSpeed);
 
   // Initialize input controls (keyboard now, touch can be added later)
   setupInput(this);
@@ -179,6 +196,12 @@ function update() {
 
     // Choose a random horizontal position
     obstacle.x = Phaser.Math.Between(20, 620);
+
+    score++;
+    scoreText.setText("Score: " + score);
+
+    obstacleSpeed += 20;
+    obstacle.body.setVelocityY(obstacleSpeed);
   }
 }
 
