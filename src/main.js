@@ -6,25 +6,21 @@ import { Obstacle } from "./entities/Obstacle.js";
 import { updateMovement } from "./systems/movement.js";
 import { DebugPanel } from "./ui/DebugPanel.js";
 import { GameOverScreen } from "./ui/GameOverScreen.js";
+import { GameState } from "./systems/GameState.js";
 
-
-// Player reference
+// game entities
 let player;
-
-// Obstacle reference
 let obstacle;
-
 
 const gameWidth = 640;
 const gameHeight = 480;
 
-// Tracks whether the game has ended
-let gameOver; //state
+let gameState;
+
 let gameOverScreen;
 let debugPanel;
 let restartKey;
 
-let score = 0;
 let scoreText;
 
 // =====================
@@ -62,18 +58,7 @@ new Phaser.Game(config);
 // Create Game Objects and Initialize Game Systems
 // =====================
 function create() {
-  // Reset game state
-  gameOver = false;
-  score = 0;
-  scoreText = this.add.text(
-    20,
-    20,
-    "Score: 0",
-    {
-      fontSize: "24px",
-      fill: "#ffffff"
-    }
-  );
+  gameState = new GameState();
 
   player = new Player(
     this,
@@ -87,12 +72,24 @@ function create() {
     50
   );
 
-  debugPanel = new DebugPanel(this);
+    
+  scoreText = this.add.text(
+    20,
+    20,
+    "Score: 0",
+    {
+      fontSize: "24px",
+      fill: "#ffffff"
+    }
+  );
 
-  // Initialize input controls (keyboard now, touch can be added later)
+  debugPanel = new DebugPanel(this);
+  gameOverScreen = new GameOverScreen(this);
+
+  // initialize input controls
   setupInput(this);
 
-  // Watch for collisions between the player and obstacle
+  // watch for collisions between the player and obstacle
   this.physics.add.overlap(
       player.sprite,
       obstacle.sprite,
@@ -101,35 +98,30 @@ function create() {
       this
   );
 
-
-  gameOverScreen = new GameOverScreen(this);
-  
-  // Create restart key
+  // create restart key
   restartKey = this.input.keyboard.addKey(
     Phaser.Input.Keyboard.KeyCodes.R
   );
 
   this.input.on("pointerdown", () => {
-    if (gameOver) {
+    if (gameState.gameOver) {
         this.scene.restart();
     }
   });
-
 }
 
 // =====================
 // Handle Player Input
 // =====================
-// Runs every frame and updates player movement
+// main game loop
 function update() {
-  if (gameOver) {
+  if (gameState.gameOver) {
 
     if (Phaser.Input.Keyboard.JustDown(restartKey)) {
       this.scene.restart();
     }
     return;
   }
-
   const movement = getMovement();
 
   updateMovement(
@@ -137,11 +129,14 @@ function update() {
       movement
   );
 
-  // Reset obstacle when it leaves the screen
+  // reset obstacle when it leaves the screen
   if (obstacle.sprite.y > 480) {
     obstacle.reset();
-    score++;
-    scoreText.setText("Score: " + score);
+    gameState.addScore();
+
+    scoreText.setText(
+        "Score: " + gameState.score
+    );
   }
   debugPanel.update(
       player,
@@ -152,10 +147,7 @@ function update() {
 }
 
 function playerHitObstacle() {
-
-  gameOver = true;
-
+  gameState.endGame();
   player.sprite.body.setVelocity(0, 0);
-
   gameOverScreen.show();
 }
