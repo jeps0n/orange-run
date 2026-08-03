@@ -18,7 +18,8 @@ const gameWidth = 640;
 const gameHeight = 480;
 
 // Tracks whether the game has ended
-let gameOver = false;
+let gameOver;
+let restartKey;
 
 // =====================
 // Game Configuration
@@ -55,7 +56,8 @@ new Phaser.Game(config);
 // Create Game Objects and Initialize Game Systems
 // =====================
 function create() {
-
+  // Reset game state
+  gameOver = false;
   // Create the player object
   player = this.add.rectangle(
     320, // x position
@@ -89,6 +91,11 @@ function create() {
   // Initialize input controls (keyboard now, touch can be added later)
   setupInput(this);
 
+    // Create restart key
+  restartKey = this.input.keyboard.addKey(
+    Phaser.Input.Keyboard.KeyCodes.R
+  );
+
   // Watch for collisions between the player and obstacle
   this.physics.add.overlap(
     player,
@@ -105,7 +112,12 @@ function create() {
 // Runs every frame and updates player movement
 function update() {
   if (gameOver) {
-	  return;
+
+    if (Phaser.Input.Keyboard.JustDown(restartKey)) {
+      this.scene.restart();
+    }
+
+    return;
   }
 
   // Get input direction from input.js

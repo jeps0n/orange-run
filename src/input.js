@@ -13,6 +13,7 @@ export function setupInput(scene) {
 // Returns the current movement direction
 // This keeps input separate from player movement logic.
 export function getMovement() {
+    console.log(cursors);
     return {
         x:
             (cursors.right.isDown ? 1 : 0) -
