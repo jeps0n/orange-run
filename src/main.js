@@ -19,7 +19,11 @@ const gameHeight = 480;
 
 // Tracks whether the game has ended
 let gameOver;
-let gameOverText;
+
+let gameOverPanel;
+let gameOverTitle;
+let restartText;
+
 let restartKey;
 
 // =====================
@@ -59,6 +63,7 @@ new Phaser.Game(config);
 function create() {
   // Reset game state
   gameOver = false;
+
   // Create the player object
   player = this.add.rectangle(
     320, // x position
@@ -101,18 +106,43 @@ function create() {
     this
   );
 
-  gameOverText = this.add.text(
+  // Create game over background panel
+  gameOverPanel = this.add.rectangle(
     320,
-    240,
-    "GAME OVER\nPress R to restart",
+    245,
+    300,
+    130,
+    0x000000,
+    0.5
+  );
+  gameOverTitle = this.add.text(
+    320,
+    220,
+    "GAME OVER",
     {
-      fontSize: "32px",
-      fill: "#ffffff"
+      fontSize: "48px",
+      fontStyle: "bold",
+      fill: "#ffffff",
     }
   );
 
-  gameOverText.setOrigin(0.5);
-  gameOverText.setVisible(false);
+  // Smaller restart message
+  restartText = this.add.text(
+    320,
+    270,
+    "Press R to restart",
+    {
+      fontSize: "24px",
+      fill: "#ffffff",
+    }
+  );
+  gameOverPanel.setVisible(false);
+
+  gameOverTitle.setVisible(false);
+  gameOverTitle.setOrigin(0.5);
+
+  restartText.setVisible(false);
+  restartText.setOrigin(0.5);
   
   // Create restart key
   restartKey = this.input.keyboard.addKey(
@@ -155,5 +185,7 @@ function update() {
 function playerHitObstacle() {
   gameOver = true;
   player.body.setVelocity(0, 0);
-  gameOverText.setVisible(true);
+  gameOverPanel.setVisible(true);
+  gameOverTitle.setVisible(true);
+  restartText.setVisible(true);
 }
