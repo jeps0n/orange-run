@@ -17,8 +17,8 @@ export class Obstacle {
         this.speed = 120;
 
         this.sprite.body.setVelocityY(this.speed);
-    }
-
+    } 
+ 
     reset() {
         this.sprite.y = 0;
 

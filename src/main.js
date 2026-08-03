@@ -4,6 +4,8 @@ import { setupInput, getMovement, getInputDebug } from "./input.js";
 import { Player } from "./entities/Player.js";
 import { Obstacle } from "./entities/Obstacle.js";
 import { updateMovement } from "./systems/movement.js";
+import { DebugPanel } from "./ui/DebugPanel.js";
+import { GameOverScreen } from "./ui/GameOverScreen.js";
 
 
 // Player reference
@@ -17,20 +19,13 @@ const gameWidth = 640;
 const gameHeight = 480;
 
 // Tracks whether the game has ended
-let gameOver;
-
-let gameOverPanel;
-let gameOverTitle;
-let restartText;
-
+let gameOver; //state
+let gameOverScreen;
+let debugPanel;
 let restartKey;
 
 let score = 0;
 let scoreText;
-
-let xyText;
-let fpsText;
-let inputText;
 
 // =====================
 // Game Configuration
@@ -79,7 +74,7 @@ function create() {
       fill: "#ffffff"
     }
   );
-  
+
   player = new Player(
     this,
     320,
@@ -92,38 +87,7 @@ function create() {
     50
   );
 
-
-
-
-  xyText = this.add.text(
-    20,
-    50,
-    "",
-    {
-        fontSize: "18px",
-        fill: "#00ff00"
-    }
-  );
-
-  fpsText = this.add.text(
-    20,
-    100,
-    "",
-    {
-        fontSize: "18px",
-        fill: "#ffff00"
-    }
-  );
-
-  inputText = this.add.text(
-    440,
-    20,
-    "",
-    {
-        fontSize: "14px",
-        fill: "#b0e0e6"
-    }
-  );
+  debugPanel = new DebugPanel(this);
 
   // Initialize input controls (keyboard now, touch can be added later)
   setupInput(this);
@@ -137,43 +101,8 @@ function create() {
       this
   );
 
-  // Create game over background panel
-  gameOverPanel = this.add.rectangle(
-    320,
-    245,
-    300,
-    130,
-    0x000000,
-    0.5
-  );
-  gameOverTitle = this.add.text(
-    320,
-    220,
-    "GAME OVER",
-    {
-      fontSize: "48px",
-      fontStyle: "bold",
-      fill: "#ffffff",
-    }
-  );
 
-  // Smaller restart message
-  restartText = this.add.text(
-    320,
-    270,
-    "Press R to restart",
-    {
-      fontSize: "24px",
-      fill: "#ffffff",
-    }
-  );
-  gameOverPanel.setVisible(false);
-
-  gameOverTitle.setVisible(false);
-  gameOverTitle.setOrigin(0.5);
-
-  restartText.setVisible(false);
-  restartText.setOrigin(0.5);
+  gameOverScreen = new GameOverScreen(this);
   
   // Create restart key
   restartKey = this.input.keyboard.addKey(
@@ -214,38 +143,19 @@ function update() {
     score++;
     scoreText.setText("Score: " + score);
   }
-  xyText.setText(
-    `vx: ${Math.round(player.sprite.body.velocity.x)}\n` +
-    `vy: ${Math.round(player.sprite.body.velocity.y)}`
-  );
-
-  fpsText.setText(
-    `FPS: ${Math.round(this.game.loop.actualFps)}`
-  );
-
-  const debug = getInputDebug();
-
-  inputText.setText(
-  `Touch: ${debug.touchActive}
-
-  Center:
-  ${Math.round(debug.joystickCenter.x)},
-  ${Math.round(debug.joystickCenter.y)}
-
-  Finger:
-  ${Math.round(debug.touchPosition.x)},
-  ${Math.round(debug.touchPosition.y)}
-
-  Move:
-  ${movement.x},
-  ${movement.y}`
+  debugPanel.update(
+      player,
+      movement,
+      getInputDebug(),
+      this.game.loop.actualFps
   );
 }
 
 function playerHitObstacle() {
+
   gameOver = true;
+
   player.sprite.body.setVelocity(0, 0);
-  gameOverPanel.setVisible(true);
-  gameOverTitle.setVisible(true);
-  restartText.setVisible(true);
+
+  gameOverScreen.show();
 }
