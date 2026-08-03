@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import "./style.css";
 import { setupInput, getMovement, getInputDebug } from "./input.js";
 import { Player } from "./entities/Player.js";
+import { Obstacle } from "./entities/Obstacle.js";
 import { updateMovement } from "./systems/movement.js";
 
 
@@ -26,8 +27,6 @@ let restartKey;
 
 let score = 0;
 let scoreText;
-
-let obstacleSpeed = 120;
 
 let xyText;
 let fpsText;
@@ -71,14 +70,6 @@ function create() {
   // Reset game state
   gameOver = false;
   score = 0;
-  obstacleSpeed = 120;
-
-  player = new Player(
-    this,
-    320,
-    240
-  );
-
   scoreText = this.add.text(
     20,
     20,
@@ -88,6 +79,21 @@ function create() {
       fill: "#ffffff"
     }
   );
+  
+  player = new Player(
+    this,
+    320,
+    240
+  );
+
+  obstacle = new Obstacle(
+    this,
+    320,
+    50
+  );
+
+
+
 
   xyText = this.add.text(
     20,
@@ -119,28 +125,13 @@ function create() {
     }
   );
 
-  // Create falling obstacle
-  obstacle = this.add.rectangle(
-    320,    // x position (middle of 640 width)
-    50,     // y position (near the top)
-    40,     // width
-    40,     // height
-    0xff0000 // red color
-  );
-
-  // Add a physics body to the obstacle (for collision detection)
-  this.physics.add.existing(obstacle);
-
-  // Move the obstacle downward
-  obstacle.body.setVelocityY(obstacleSpeed);
-
   // Initialize input controls (keyboard now, touch can be added later)
   setupInput(this);
 
   // Watch for collisions between the player and obstacle
   this.physics.add.overlap(
       player.sprite,
-      obstacle,
+      obstacle.sprite,
       playerHitObstacle,
       null,
       this
@@ -218,17 +209,10 @@ function update() {
   );
 
   // Reset obstacle when it leaves the screen
-  if (obstacle.y > 480) {
-    obstacle.y = 0;
-
-    // Choose a random horizontal position
-    obstacle.x = Phaser.Math.Between(20, 620);
-
+  if (obstacle.sprite.y > 480) {
+    obstacle.reset();
     score++;
     scoreText.setText("Score: " + score);
-
-    obstacleSpeed += 20;
-    obstacle.body.setVelocityY(obstacleSpeed);
   }
   xyText.setText(
     `vx: ${Math.round(player.sprite.body.velocity.x)}\n` +

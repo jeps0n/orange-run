@@ -1,5 +1,4 @@
 export class Player {
-
     constructor(scene, x, y) {
 
         // Create the player visual
@@ -20,5 +19,4 @@ export class Player {
         // Player settings
         this.speed = 250;
     }
-
 }
