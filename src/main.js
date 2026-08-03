@@ -31,6 +31,9 @@ let scoreText;
 
 let obstacleSpeed = 120;
 
+let debugText;
+let fpsText;
+
 // =====================
 // Game Configuration
 // =====================
@@ -78,6 +81,26 @@ function create() {
     {
       fontSize: "24px",
       fill: "#ffffff"
+    }
+  );
+
+  debugText = this.add.text(
+    20,
+    50,
+    "",
+    {
+        fontSize: "18px",
+        fill: "#00ff00"
+    }
+  );
+
+  fpsText = this.add.text(
+    20,
+    100,
+    "",
+    {
+        fontSize: "18px",
+        fill: "#ffff00"
     }
   );
 
@@ -165,6 +188,13 @@ function create() {
   restartKey = this.input.keyboard.addKey(
     Phaser.Input.Keyboard.KeyCodes.R
   );
+
+  this.input.on("pointerdown", () => {
+    if (gameOver) {
+        this.scene.restart();
+    }
+  });
+
 }
 
 // =====================
@@ -177,14 +207,23 @@ function update() {
     if (Phaser.Input.Keyboard.JustDown(restartKey)) {
       this.scene.restart();
     }
-
     return;
   }
 
   // Get input direction from input.js
   const movement = getMovement();
 
-  // Move the player based on current input
+  // Normalize diagonal movement so all directions have the same speed.
+  const length = Math.sqrt(
+    movement.x * movement.x +
+    movement.y * movement.y
+  );
+
+  if (length > 0) {
+    movement.x /= length;
+    movement.y /= length;
+  }
+
   player.body.setVelocity(
     movement.x * playerSpeed,
     movement.y * playerSpeed
@@ -203,6 +242,14 @@ function update() {
     obstacleSpeed += 20;
     obstacle.body.setVelocityY(obstacleSpeed);
   }
+  debugText.setText(
+    `vx: ${Math.round(player.body.velocity.x)}\n` +
+    `vy: ${Math.round(player.body.velocity.y)}`
+  );
+
+  fpsText.setText(
+    `FPS: ${Math.round(this.game.loop.actualFps)}`
+  );
 }
 
 function playerHitObstacle() {
