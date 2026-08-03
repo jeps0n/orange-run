@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import "./style.css";
-import { setupInput, getMovement } from "./input.js";
+import { setupInput, getMovement, getInputDebug } from "./input.js";
 
 
 
@@ -31,8 +31,9 @@ let scoreText;
 
 let obstacleSpeed = 120;
 
-let debugText;
+let xyText;
 let fpsText;
+let inputText;
 
 // =====================
 // Game Configuration
@@ -84,7 +85,7 @@ function create() {
     }
   );
 
-  debugText = this.add.text(
+  xyText = this.add.text(
     20,
     50,
     "",
@@ -103,6 +104,18 @@ function create() {
         fill: "#ffff00"
     }
   );
+
+  inputText = this.add.text(
+    440,
+    20,
+    "",
+    {
+        fontSize: "14px",
+        fill: "#b0e0e6"
+    }
+  );
+
+  
 
   // Create the player object
   player = this.add.rectangle(
@@ -213,7 +226,7 @@ function update() {
   // Get input direction from input.js
   const movement = getMovement();
 
-  // Normalize diagonal movement so all directions have the same speed.
+  // Normalize diagonal movement so all directions have the same speed
   const length = Math.sqrt(
     movement.x * movement.x +
     movement.y * movement.y
@@ -242,13 +255,31 @@ function update() {
     obstacleSpeed += 20;
     obstacle.body.setVelocityY(obstacleSpeed);
   }
-  debugText.setText(
+  xyText.setText(
     `vx: ${Math.round(player.body.velocity.x)}\n` +
     `vy: ${Math.round(player.body.velocity.y)}`
   );
 
   fpsText.setText(
     `FPS: ${Math.round(this.game.loop.actualFps)}`
+  );
+
+  const debug = getInputDebug();
+
+  inputText.setText(
+  `Touch: ${debug.touchActive}
+
+  Center:
+  ${Math.round(debug.joystickCenter.x)},
+  ${Math.round(debug.joystickCenter.y)}
+
+  Finger:
+  ${Math.round(debug.touchPosition.x)},
+  ${Math.round(debug.touchPosition.y)}
+
+  Move:
+  ${movement.x},
+  ${movement.y}`
   );
 }
 
