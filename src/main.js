@@ -19,6 +19,7 @@ const gameHeight = 480;
 
 // Tracks whether the game has ended
 let gameOver;
+let gameOverText;
 let restartKey;
 
 // =====================
@@ -91,11 +92,6 @@ function create() {
   // Initialize input controls (keyboard now, touch can be added later)
   setupInput(this);
 
-    // Create restart key
-  restartKey = this.input.keyboard.addKey(
-    Phaser.Input.Keyboard.KeyCodes.R
-  );
-
   // Watch for collisions between the player and obstacle
   this.physics.add.overlap(
     player,
@@ -103,6 +99,24 @@ function create() {
     playerHitObstacle,
     null,
     this
+  );
+
+  gameOverText = this.add.text(
+    320,
+    240,
+    "GAME OVER\nPress R to restart",
+    {
+      fontSize: "32px",
+      fill: "#ffffff"
+    }
+  );
+
+  gameOverText.setOrigin(0.5);
+  gameOverText.setVisible(false);
+  
+  // Create restart key
+  restartKey = this.input.keyboard.addKey(
+    Phaser.Input.Keyboard.KeyCodes.R
   );
 }
 
@@ -140,5 +154,6 @@ function update() {
 
 function playerHitObstacle() {
   gameOver = true;
-  console.log("Game Over");
+  player.body.setVelocity(0, 0);
+  gameOverText.setVisible(true);
 }
