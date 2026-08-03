@@ -11,6 +11,15 @@ let player;
 // Obstacle reference
 let obstacle;
 
+// Controls player movement speed
+const playerSpeed = 250;
+
+const gameWidth = 640;
+const gameHeight = 480;
+
+// Tracks whether the game has ended
+let gameOver = false;
+
 // =====================
 // Game Configuration
 // =====================
@@ -21,8 +30,8 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 640,
-        height: 480
+        width: gameWidth,
+        height: gameHeight
     },
 
     backgroundColor: "#1b1b1b",
@@ -53,7 +62,7 @@ function create() {
     240, // y position
     50, // width
     50, // height
-    0xff8800 // color
+    0xff8800 // orange color
   );
 
   // Add physics so the player object can move
@@ -62,17 +71,20 @@ function create() {
   // Keep the player object inside the game window
   player.body.setCollideWorldBounds(true);
 
-      // Create falling obstacle
+  // Create falling obstacle
   obstacle = this.add.rectangle(
-      320,    // x position (middle of 640 width)
-      50,     // y position (near the top)
-      40,     // width
-      40,     // height
-      0xff0000 // red color
+    320,    // x position (middle of 640 width)
+    50,     // y position (near the top)
+    40,     // width
+    40,     // height
+    0xff0000 // red color
   );
 
   // Add a physics body to the obstacle (for collision detection)
   this.physics.add.existing(obstacle);
+
+  // Move the obstacle downward
+  obstacle.body.setVelocityY(120);
 
   // Initialize input controls (keyboard now, touch can be added later)
   setupInput(this);
@@ -90,35 +102,31 @@ function create() {
 // =====================
 // Handle Player Input
 // =====================
-
 // Runs every frame and updates player movement
 function update() {
-
-  const speed = 250;
+  if (gameOver) {
+	  return;
+  }
 
   // Get input direction from input.js
   const movement = getMovement();
 
   // Move the player based on current input
   player.body.setVelocity(
-      movement.x * speed,
-      movement.y * speed
+    movement.x * playerSpeed,
+    movement.y * playerSpeed
   );
-
-  // Move obstacle downward
-  obstacle.y += 2;
 
   // Reset obstacle when it leaves the screen
   if (obstacle.y > 480) {
-      obstacle.y = 0;
+    obstacle.y = 0;
 
-      // Choose a random horizontal position
-      obstacle.x = Phaser.Math.Between(20, 620);
+    // Choose a random horizontal position
+    obstacle.x = Phaser.Math.Between(20, 620);
   }
 }
 
 function playerHitObstacle() {
-
-    console.log("Game Over");
-
+  gameOver = true;
+  console.log("Game Over");
 }
