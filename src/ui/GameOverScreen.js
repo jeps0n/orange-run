@@ -25,9 +25,10 @@ export class GameOverScreen {
         this.restartText = scene.add.text(
             320,
             270,
-            "Press R to restart",
+            "Press\nSPACE or TAP\nto Restart",
             {
                 fontSize: "24px",
+                align: "center",
                 fill: "#ffffff"
             }
         );

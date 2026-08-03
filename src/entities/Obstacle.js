@@ -10,14 +10,14 @@ export class Obstacle {
             40,
             40,
             0xff0000
-        );
-
+        ); 
         scene.physics.add.existing(this.sprite);
-
         this.speed = 120;
+    }
 
+    start() {
         this.sprite.body.setVelocityY(this.speed);
-    } 
+    }
  
     reset() {
         this.sprite.y = 0;

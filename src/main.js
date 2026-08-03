@@ -1,14 +1,20 @@
 import Phaser from "phaser";
 import "./style.css";
 import { setupInput, getMovement, getInputDebug } from "./input.js";
+
 import { Player } from "./entities/Player.js";
 import { Obstacle } from "./entities/Obstacle.js";
+
 import { updateMovement } from "./systems/movement.js";
-import { DebugPanel } from "./ui/DebugPanel.js";
-import { GameOverScreen } from "./ui/GameOverScreen.js";
 import { GameState } from "./systems/GameState.js";
 
-// game entities
+import { StartScreen } from "./ui/StartScreen.js";
+import { ScoreDisplay } from "./ui/ScoreDisplay.js";
+import { GameOverScreen } from "./ui/GameOverScreen.js";
+import { DebugPanel } from "./ui/DebugPanel.js";
+
+
+// game objects
 let player;
 let obstacle;
 
@@ -16,12 +22,13 @@ const gameWidth = 640;
 const gameHeight = 480;
 
 let gameState;
-
+let startScreen;
 let gameOverScreen;
 let debugPanel;
-let restartKey;
 
-let scoreText;
+let continueKey;
+
+let scoreDisplay;
 
 // =====================
 // Game Configuration
@@ -58,33 +65,33 @@ new Phaser.Game(config);
 // Create Game Objects and Initialize Game Systems
 // =====================
 function create() {
-  gameState = new GameState();
+  gameState = new GameState(this);
 
   player = new Player(
-    this,
-    320,
-    240
+      this,
+      gameWidth / 2,
+      gameHeight / 2
   );
 
   obstacle = new Obstacle(
-    this,
-    320,
-    50
+      this,
+      gameWidth / 2,
+      50
   );
 
-    
-  scoreText = this.add.text(
-    20,
-    20,
-    "Score: 0",
-    {
-      fontSize: "24px",
-      fill: "#ffffff"
-    }
-  );
+  setGameObjectsVisible(gameState.started);
 
-  debugPanel = new DebugPanel(this);
+  if (gameState.started) {
+      obstacle.start();
+  }
+
+  scoreDisplay = new ScoreDisplay(this);
+
+  if (!this.registry.get("hasStarted")) {
+    startScreen = new StartScreen(this);
+  }
   gameOverScreen = new GameOverScreen(this);
+  debugPanel = new DebugPanel(this);
 
   // initialize input controls
   setupInput(this);
@@ -98,29 +105,26 @@ function create() {
       this
   );
 
-  // create restart key
-  restartKey = this.input.keyboard.addKey(
-    Phaser.Input.Keyboard.KeyCodes.R
+  continueKey = this.input.keyboard.addKey(
+    Phaser.Input.Keyboard.KeyCodes.SPACE
   );
 
   this.input.on("pointerdown", () => {
-    if (gameState.gameOver) {
-        this.scene.restart();
-    }
+      handleGameAction(this);
   });
-}
+  }
 
 // =====================
-// Handle Player Input
+// Main Game Loop
 // =====================
-// main game loop
 function update() {
-  if (gameState.gameOver) {
+  if (!gameState.started || gameState.gameOver) {
 
-    if (Phaser.Input.Keyboard.JustDown(restartKey)) {
-      this.scene.restart();
-    }
-    return;
+      if (Phaser.Input.Keyboard.JustDown(continueKey)) {
+          handleGameAction(this);
+      }
+
+      return;
   }
   const movement = getMovement();
 
@@ -130,16 +134,17 @@ function update() {
   );
 
   // reset obstacle when it leaves the screen
-  if (obstacle.sprite.y > 480) {
+  if (obstacle.sprite.y > gameHeight) {
     obstacle.reset();
     gameState.addScore();
 
-    scoreText.setText(
-        "Score: " + gameState.score
+    scoreDisplay.update(
+        gameState.score
     );
   }
   debugPanel.update(
       player,
+      obstacle,
       movement,
       getInputDebug(),
       this.game.loop.actualFps
@@ -150,4 +155,32 @@ function playerHitObstacle() {
   gameState.endGame();
   player.sprite.body.setVelocity(0, 0);
   gameOverScreen.show();
+}
+
+function startGame(scene) {
+
+    gameState.startGame();
+
+    scene.registry.set("hasStarted", true);
+
+    setGameObjectsVisible(true);
+
+    obstacle.start();
+
+    startScreen?.hide();
+}
+
+function handleGameAction(scene) {
+    if (!gameState.started) {
+        startGame(scene);
+        return;
+    }
+    if (gameState.gameOver) {
+        scene.scene.restart();
+    }
+}
+
+function setGameObjectsVisible(visible) {
+    player.sprite.setVisible(visible);
+    obstacle.sprite.setVisible(visible);
 }

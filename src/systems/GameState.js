@@ -1,15 +1,27 @@
 export class GameState {
-    constructor() {
-        this.reset();
-    }
-    reset() {
-        this.score = 0;
+
+    constructor(scene) {
+
+        this.started =
+            scene.registry.get("hasStarted") ?? false;
+
         this.gameOver = false;
+        this.score = 0;
     }
-    addScore() {
-        this.score++;
+
+
+    startGame() {
+        this.started = true;
     }
+
+
     endGame() {
         this.gameOver = true;
     }
+
+
+    addScore() {
+        this.score++;
+    }
+
 }

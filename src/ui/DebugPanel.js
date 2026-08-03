@@ -28,13 +28,24 @@ export class DebugPanel {
             "",
             {
                 fontSize: "14px",
+                fontFamily: "monospace",
                 fill: "#b0e0e6"
             }
         );
+
+        this.obstacleText = scene.add.text(
+            20,
+            130,
+            "",
+            {
+                fontSize: "18px",
+                fill: "#ff5555"
+            }
+);
     }
 
 
-    update(player, movement, debug, fps) {
+    update(player, obstacle, movement, debug, fps) {
 
         this.xyText.setText(
             `vx: ${Math.round(player.sprite.body.velocity.x)}\n` +
@@ -46,21 +57,27 @@ export class DebugPanel {
             `FPS: ${Math.round(fps)}`
         );
 
+        this.obstacleText.setText(
+            `Obstacle Speed: ${obstacle.speed}`
+        );
+
 
         this.inputText.setText(
-`Touch: ${debug.touchActive}
+            `
+            Touch:  ${debug.touchActive}
 
-Center:
-${Math.round(debug.joystickCenter.x)},
-${Math.round(debug.joystickCenter.y)}
+            Center:
+            x: ${Math.round(debug.joystickCenter.x)}
+            y: ${Math.round(debug.joystickCenter.y)}
 
-Finger:
-${Math.round(debug.touchPosition.x)},
-${Math.round(debug.touchPosition.y)}
+            Finger:
+            x: ${Math.round(debug.touchPosition.x)}
+            y: ${Math.round(debug.touchPosition.y)}
 
-Move:
-${movement.x},
-${movement.y}`
+            Move:
+            x: ${movement.x.toFixed(2)}
+            y: ${movement.y.toFixed(2)}
+            `
         );
     }
 
