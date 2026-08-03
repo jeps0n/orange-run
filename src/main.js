@@ -1,13 +1,25 @@
 import Phaser from "phaser";
 import "./style.css";
+import { setupInput, getMovement } from "./input.js";
 
+// Player reference
+// Allows update() to control the player created in create()
 let player;
+
+// =====================
+// Game Configuration
+// =====================
 
 const config = {
     type: Phaser.AUTO,
-
-    width: 800,
-    height: 600,
+    
+    // Keep the game resolution consistent while allowing different screen sizes
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 640,
+        height: 480
+    },
 
     backgroundColor: "#1b1b1b",
 
@@ -26,45 +38,46 @@ const config = {
 
 new Phaser.Game(config);
 
+// =====================
+// Create Game Objects
+// =====================
 
 function create() {
-    // Create player as a blue square
+
+    // Create the player object
     player = this.add.rectangle(
-        400,
-        300,
+        320,
+        240,
         50,
         50,
         0x00aaff
     );
 
-    // Enable physics on the player
+    // Add physics so the player object can move
     this.physics.add.existing(player);
 
+    // Keep the player object inside the game window
     player.body.setCollideWorldBounds(true);
 
-    // Add keyboard controls
-    this.cursors = this.input.keyboard.createCursorKeys();
+    // Enable arrow keys
+    setupInput(this);
 }
 
+// =====================
+// Handle Player Input
+// =====================
 
+// Runs every frame and updates player movement
 function update() {
+
     const speed = 250;
 
-    player.body.setVelocity(0);
+    // Get input direction from input.js
+    const movement = getMovement();
 
-    if (this.cursors.left.isDown) {
-        player.body.setVelocityX(-speed);
-    }
-
-    if (this.cursors.right.isDown) {
-        player.body.setVelocityX(speed);
-    }
-
-    if (this.cursors.up.isDown) {
-        player.body.setVelocityY(-speed);
-    }
-
-    if (this.cursors.down.isDown) {
-        player.body.setVelocityY(speed);
-    }
+    // Move the player based on current input
+    player.body.setVelocity(
+        movement.x * speed,
+        movement.y * speed
+    );
 }
