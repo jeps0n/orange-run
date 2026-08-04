@@ -18,6 +18,12 @@ export class GameOverScreen {
             0.75
         );
 
+        this.background.setStrokeStyle(
+            2,
+            0xffffff,
+            0.15
+        );
+
         this.title = scene.add.text(
             0,
             -60,
