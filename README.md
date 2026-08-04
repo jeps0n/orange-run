@@ -1,5 +1,7 @@
 # Orange Run
 
+*** 🎮 PLAY THE GAME: https://jeps0n.github.io/orange-run/ ***
+
 A fast-paced arcade dodge game built with **Phaser 3** and **JavaScript**.
 
 Orange Run started as a simple movement and collision prototype and evolved into a small, polished game focused on responsive controls, gameplay feedback, and clean code organization.
