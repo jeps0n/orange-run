@@ -12,6 +12,7 @@ import { StartScreen } from "./ui/StartScreen.js";
 import { ScoreDisplay } from "./ui/ScoreDisplay.js";
 import { GameOverScreen } from "./ui/GameOverScreen.js";
 import { DebugPanel } from "./ui/DebugPanel.js";
+import { BackgroundEffect } from "./ui/BackgroundEffect.js";
 
 
 // game objects
@@ -35,6 +36,7 @@ let debugTapTimer;
 const debugTapZoneSize = 160;
 
 let scoreDisplay;
+let backgroundEffect;
 
 // =====================
 // Game Configuration
@@ -104,7 +106,7 @@ function create() {
   // UI
   // =====================
   scoreDisplay = new ScoreDisplay(this);
-
+  backgroundEffect = new BackgroundEffect(this);
   if (!this.registry.get("hasStarted")) {
       startScreen = new StartScreen(this);
   }
@@ -157,43 +159,49 @@ function create() {
 // Main Game Loop
 // =====================
 function update() {
-  if (Phaser.Input.Keyboard.JustDown(debugKey)) {
-      debugVisible = !debugVisible;
-      debugPanel.setVisible(debugVisible);
-  }
-  if (!gameState.started || gameState.gameOver) {
 
-      if (Phaser.Input.Keyboard.JustDown(continueKey)) {
-          handleGameAction(this);
-      }
+    if (Phaser.Input.Keyboard.JustDown(debugKey)) {
+        debugVisible = !debugVisible;
+        debugPanel.setVisible(debugVisible);
+    }
 
-      return;
-  }
-  const movement = getMovement();
+    if (!gameState.started || gameState.gameOver) {
 
-  updateMovement(
-      player,
-      movement
-  );
+        if (Phaser.Input.Keyboard.JustDown(continueKey)) {
+            handleGameAction(this);
+        }
 
-  // reset obstacle when it leaves the screen
-  if (obstacle.sprite.y > gameHeight) {
-    obstacle.reset();
-    gameState.addScore();
+        return;
+    }
 
-    scoreDisplay.update(
-        gameState.score
+    backgroundEffect.update(
+        obstacle.speed
     );
-  }
-  debugPanel.update(
-      player,
-      obstacle,
-      movement,
-      getInputDebug(),
-      this.game.loop.actualFps
-  );
-}
 
+    const movement = getMovement();
+
+    updateMovement(
+        player,
+        movement
+    );
+
+    if (obstacle.sprite.y > gameHeight) {
+        obstacle.reset();
+        gameState.addScore();
+
+        scoreDisplay.update(
+            gameState.score
+        );
+    }
+
+    debugPanel.update(
+        player,
+        obstacle,
+        movement,
+        getInputDebug(),
+        this.game.loop.actualFps
+    );
+}
 function playerHitObstacle() {
 
   if (gameState.gameOver) {
