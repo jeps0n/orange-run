@@ -27,6 +27,9 @@ let gameOverScreen;
 let debugPanel;
 
 let continueKey;
+let debugKey;
+
+let debugVisible = false;
 
 let scoreDisplay;
 
@@ -65,8 +68,16 @@ new Phaser.Game(config);
 // Initialize Scene Objects and Systems
 // =====================
 function create() {
+
+  // =====================
+  // Game State
+  // =====================
   gameState = new GameState(this);
 
+
+  // =====================
+  // Game Objects
+  // =====================
   player = new Player(
       this,
       gameWidth / 2,
@@ -85,18 +96,39 @@ function create() {
       obstacle.start();
   }
 
+
+  // =====================
+  // UI
+  // =====================
   scoreDisplay = new ScoreDisplay(this);
 
   if (!this.registry.get("hasStarted")) {
-    startScreen = new StartScreen(this);
+      startScreen = new StartScreen(this);
   }
-  gameOverScreen = new GameOverScreen(this);
-  debugPanel = new DebugPanel(this);
 
-  // initialize input controls
+  gameOverScreen = new GameOverScreen(this);
+
+  debugPanel = new DebugPanel(this);
+  debugPanel.setVisible(debugVisible);
+
+
+  // =====================
+  // Input
+  // =====================
   setupInput(this);
 
-  // watch for collisions between the player and obstacle
+  continueKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+  );
+
+  debugKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.D
+  );
+
+
+  // =====================
+  // Physics
+  // =====================
   this.physics.add.overlap(
       player.sprite,
       obstacle.sprite,
@@ -105,19 +137,24 @@ function create() {
       this
   );
 
-  continueKey = this.input.keyboard.addKey(
-    Phaser.Input.Keyboard.KeyCodes.SPACE
-  );
 
+  // =====================
+  // Pointer Controls
+  // =====================
   this.input.on("pointerdown", () => {
       handleGameAction(this);
   });
-  }
+
+}
 
 // =====================
 // Main Game Loop
 // =====================
 function update() {
+  if (Phaser.Input.Keyboard.JustDown(debugKey)) {
+      debugVisible = !debugVisible;
+      debugPanel.setVisible(debugVisible);
+  }
   if (!gameState.started || gameState.gameOver) {
 
       if (Phaser.Input.Keyboard.JustDown(continueKey)) {

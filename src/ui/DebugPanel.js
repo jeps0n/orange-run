@@ -81,4 +81,10 @@ export class DebugPanel {
         );
     }
 
+    setVisible(visible) {
+        this.xyText.setVisible(visible);
+        this.fpsText.setVisible(visible);
+        this.inputText.setVisible(visible);
+        this.obstacleSpeedText.setVisible(visible);
+    }
 }
