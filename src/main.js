@@ -30,6 +30,9 @@ let continueKey;
 let debugKey;
 
 let debugVisible = false;
+let debugTapCount = 0;
+let debugTapTimer;
+const debugTapZoneSize = 160;
 
 let scoreDisplay;
 
@@ -141,7 +144,10 @@ function create() {
   // =====================
   // Pointer Controls
   // =====================
-  this.input.on("pointerdown", () => {
+  this.input.on("pointerdown", (pointer) => {
+      if (handleDebugTap(pointer)) {
+        return;
+      }
       handleGameAction(this);
   });
 
@@ -249,4 +255,31 @@ function handleGameAction(scene) {
 function setGameObjectsVisible(visible) {
     player.sprite.setVisible(visible);
     obstacle.sprite.setVisible(visible);
+}
+
+function handleDebugTap(pointer) {
+
+    if (
+        pointer.x < debugTapZoneSize &&
+        pointer.y < debugTapZoneSize
+    ) {
+
+        debugTapCount++;
+
+        clearTimeout(debugTapTimer);
+
+        debugTapTimer = setTimeout(() => {
+            debugTapCount = 0;
+        }, 1200);
+
+        if (debugTapCount === 3) {
+            debugVisible = !debugVisible;
+            debugPanel.setVisible(debugVisible);
+            debugTapCount = 0;
+        }
+
+        return true;
+    }
+
+    return false;
 }
