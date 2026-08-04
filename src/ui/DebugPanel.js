@@ -23,7 +23,7 @@ export class DebugPanel {
         );
 
         this.inputText = scene.add.text(
-            440,
+            400,
             20,
             "",
             {
