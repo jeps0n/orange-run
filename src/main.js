@@ -62,7 +62,7 @@ const config = {
 new Phaser.Game(config);
 
 // =====================
-// Create Game Objects and Initialize Game Systems
+// Initialize Scene Objects and Systems
 // =====================
 function create() {
   gameState = new GameState(this);
@@ -152,9 +152,38 @@ function update() {
 }
 
 function playerHitObstacle() {
+
+  if (gameState.gameOver) {
+      return;
+  }
+
   gameState.endGame();
+
+  this.cameras.main.shake(
+    200,
+    0.012
+  );
+this.tweens.add({
+    targets: player.sprite,
+    alpha: 0.2,
+    duration: 50,
+    yoyo: true,
+    repeat: 1,
+
+    onStart: () => {
+        player.sprite.setFillStyle(0xffffff);
+        player.sprite.setStrokeStyle(3, 0xff0000);
+    },
+
+    onComplete: () => {
+        player.sprite.setFillStyle(0xa9825c);
+        player.sprite.setStrokeStyle();
+        player.sprite.setAlpha(1);
+    }
+});
+  
   player.sprite.body.setVelocity(0, 0);
-  gameOverScreen.show();
+  gameOverScreen.show(gameState.score);
 }
 
 function startGame(scene) {

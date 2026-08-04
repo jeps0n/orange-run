@@ -2,60 +2,82 @@ export class GameOverScreen {
 
     constructor(scene) {
 
-        this.panel = scene.add.rectangle(
-            320,
-            245,
-            300,
-            130,
+        this.scene = scene;
+
+        this.container = scene.add.container(
+            scene.scale.width / 2,
+            scene.scale.height / 2
+        );
+
+        this.background = scene.add.rectangle(
+            0,
+            0,
+            360,
+            220,
             0x000000,
-            0.5
+            0.75
         );
 
         this.title = scene.add.text(
-            320,
-            220,
+            0,
+            -60,
             "GAME OVER",
             {
-                fontSize: "48px",
-                fontStyle: "bold",
-                fill: "#ffffff"
+                fontSize: "42px",
+                fill: "#ffffff",
+                fontStyle: "bold"
             }
-        );
+        ).setOrigin(0.5);
 
-        this.restartText = scene.add.text(
-            320,
-            270,
-            "Press\nSPACE or TAP\nto Restart",
+        this.score = scene.add.text(
+            0,
+            0,
+            "",
             {
-                fontSize: "24px",
-                align: "center",
-                fill: "#ffffff"
+                fontSize: "28px",
+                fill: "#ffaa00"
             }
+        ).setOrigin(0.5);
+
+        this.restart = scene.add.text(
+            0,
+            60,
+            "PRESS SPACE OR TAP TO RETRY",
+            {
+                fontSize: "18px",
+                fill: "#bbbbbb"
+            }
+        ).setOrigin(0.5);
+
+        this.container.add([
+            this.background,
+            this.title,
+            this.score,
+            this.restart
+        ]);
+        this.container.setVisible(false);
+    }
+    show(score) {
+        this.score.setText(
+            "Score: " + score
         );
+        this.container.setVisible(true);
+        this.container.setAlpha(0);
+        this.scene.tweens.add({
+            targets: this.container,
+            alpha: 1,
+            duration: 300
+        });
 
-
-        this.title.setOrigin(0.5);
-        this.restartText.setOrigin(0.5);
-
-        this.hide();
+        this.scene.tweens.add({
+            targets: this.restart,
+            alpha: 0.5,
+            duration: 600,
+            yoyo: true,
+            repeat: -1
+        });
     }
-
-
-    show() {
-
-        this.panel.setVisible(true);
-        this.title.setVisible(true);
-        this.restartText.setVisible(true);
-
-    }
-
-
     hide() {
-
-        this.panel.setVisible(false);
-        this.title.setVisible(false);
-        this.restartText.setVisible(false);
-
+        this.container.setVisible(false);
     }
-
 }
