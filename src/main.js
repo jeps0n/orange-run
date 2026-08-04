@@ -42,29 +42,29 @@ let backgroundEffect;
 // Game Configuration
 // =====================
 const config = {
-    type: Phaser.AUTO,
-    
-    // Keep the game resolution consistent while allowing different screen sizes
-    scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: gameWidth,
-        height: gameHeight
-    },
+  type: Phaser.AUTO,
 
-    backgroundColor: "#1b1b1b",
+  // Keep the game resolution consistent while allowing different screen sizes
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: gameWidth,
+    height: gameHeight
+  },
 
-    physics: {
-        default: "arcade",
-        arcade: {
-            debug: false
-        }
-    },
+  backgroundColor: "#1b1b1b",
 
-    scene: {
-        create,
-        update
+  physics: {
+    default: "arcade",
+    arcade: {
+      debug: false
     }
+  },
+
+  scene: {
+    create,
+    update
+  }
 };
 
 new Phaser.Game(config);
@@ -84,21 +84,21 @@ function create() {
   // Game Objects
   // =====================
   player = new Player(
-      this,
-      gameWidth / 2,
-      gameHeight / 2
+    this,
+    gameWidth / 2,
+    gameHeight / 2
   );
 
   obstacle = new Obstacle(
-      this,
-      gameWidth / 2,
-      50
+    this,
+    gameWidth / 2,
+    50
   );
 
   setGameObjectsVisible(gameState.started);
 
   if (gameState.started) {
-      obstacle.start();
+    obstacle.start();
   }
 
 
@@ -107,15 +107,13 @@ function create() {
   // =====================
   scoreDisplay = new ScoreDisplay(this);
   backgroundEffect = new BackgroundEffect(this);
+  debugPanel = new DebugPanel(this);
+  debugPanel.setVisible(debugVisible);
   if (!this.registry.get("hasStarted")) {
-      startScreen = new StartScreen(this);
+    startScreen = new StartScreen(this);
   }
 
   gameOverScreen = new GameOverScreen(this);
-
-  debugPanel = new DebugPanel(this);
-  debugPanel.setVisible(debugVisible);
-
 
   // =====================
   // Input
@@ -123,11 +121,11 @@ function create() {
   setupInput(this);
 
   continueKey = this.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE
+    Phaser.Input.Keyboard.KeyCodes.SPACE
   );
 
   debugKey = this.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.D
+    Phaser.Input.Keyboard.KeyCodes.D
   );
 
 
@@ -135,11 +133,11 @@ function create() {
   // Physics
   // =====================
   this.physics.add.overlap(
-      player.sprite,
-      obstacle.sprite,
-      playerHitObstacle,
-      null,
-      this
+    player.sprite,
+    obstacle.sprite,
+    playerHitObstacle,
+    null,
+    this
   );
 
 
@@ -147,10 +145,10 @@ function create() {
   // Pointer Controls
   // =====================
   this.input.on("pointerdown", (pointer) => {
-      if (handleDebugTap(pointer)) {
-        return;
-      }
-      handleGameAction(this);
+    if (handleDebugTap(pointer)) {
+      return;
+    }
+    handleGameAction(this);
   });
 
 }
@@ -159,53 +157,52 @@ function create() {
 // Main Game Loop
 // =====================
 function update() {
-
-    if (Phaser.Input.Keyboard.JustDown(debugKey)) {
-        debugVisible = !debugVisible;
-        debugPanel.setVisible(debugVisible);
-    }
-
-    if (!gameState.started || gameState.gameOver) {
-
-        if (Phaser.Input.Keyboard.JustDown(continueKey)) {
-            handleGameAction(this);
-        }
-
-        return;
-    }
-
-    backgroundEffect.update(
-        obstacle.speed
-    );
-
-    const movement = getMovement();
-
-    updateMovement(
-        player,
-        movement
-    );
-
-    if (obstacle.sprite.y > gameHeight) {
-        obstacle.reset();
-        gameState.addScore();
-
-        scoreDisplay.update(
-            gameState.score
-        );
-    }
-
+  let movement = getMovement();
+  if (Phaser.Input.Keyboard.JustDown(debugKey)) {
+    debugVisible = !debugVisible;
+    debugPanel.setVisible(debugVisible);
+  }
+  if (debugVisible) {
     debugPanel.update(
-        player,
-        obstacle,
-        movement,
-        getInputDebug(),
-        this.game.loop.actualFps
+      player,
+      obstacle,
+      movement,
+      getInputDebug(),
+      this.game.loop.actualFps
     );
+  }
+  if (!gameState.started || gameState.gameOver) {
+
+    if (Phaser.Input.Keyboard.JustDown(continueKey)) {
+      handleGameAction(this);
+    }
+
+    return;
+  }
+  backgroundEffect.update(
+    obstacle.speed
+  );
+
+  updateMovement(
+    player,
+    movement
+  );
+
+  // reset obstacle when it leaves the screen
+  if (obstacle.sprite.y > gameHeight) {
+    obstacle.reset();
+    gameState.addScore();
+
+    scoreDisplay.update(
+      gameState.score
+    );
+  }
 }
+
 function playerHitObstacle() {
 
   if (gameState.gameOver) {
-      return;
+    return;
   }
 
   gameState.endGame();
@@ -214,7 +211,7 @@ function playerHitObstacle() {
     200,
     0.012
   );
-this.tweens.add({
+  this.tweens.add({
     targets: player.sprite,
     alpha: 0.2,
     duration: 50,
@@ -222,72 +219,72 @@ this.tweens.add({
     repeat: 1,
 
     onStart: () => {
-        player.sprite.setFillStyle(0xffffff);
-        player.sprite.setStrokeStyle(3, 0xff0000);
+      player.sprite.setFillStyle(0xffffff);
+      player.sprite.setStrokeStyle(3, 0xff0000);
     },
 
     onComplete: () => {
-        player.sprite.setFillStyle(0xa9825c);
-        player.sprite.setStrokeStyle();
-        player.sprite.setAlpha(1);
+      player.sprite.setFillStyle(0xa9825c);
+      player.sprite.setStrokeStyle();
+      player.sprite.setAlpha(1);
     }
-});
-  
+  });
+
   player.sprite.body.setVelocity(0, 0);
   gameOverScreen.show(gameState.score);
 }
 
 function startGame(scene) {
 
-    gameState.startGame();
+  gameState.startGame();
 
-    scene.registry.set("hasStarted", true);
+  scene.registry.set("hasStarted", true);
 
-    setGameObjectsVisible(true);
+  setGameObjectsVisible(true);
 
-    obstacle.start();
+  obstacle.start();
 
-    startScreen?.hide();
+  startScreen?.hide();
 }
 
 function handleGameAction(scene) {
-    if (!gameState.started) {
-        startGame(scene);
-        return;
-    }
-    if (gameState.gameOver) {
-        scene.scene.restart();
-    }
+  if (!gameState.started) {
+    startGame(scene);
+    return;
+  }
+  if (gameState.gameOver) {
+    scene.scene.restart();
+  }
 }
 
 function setGameObjectsVisible(visible) {
-    player.sprite.setVisible(visible);
-    obstacle.sprite.setVisible(visible);
+  player.sprite.setVisible(visible);
+  obstacle.sprite.setVisible(visible);
 }
 
 function handleDebugTap(pointer) {
 
-    if (
-        pointer.x < debugTapZoneSize &&
-        pointer.y < debugTapZoneSize
-    ) {
+  if (
+    pointer.x < debugTapZoneSize &&
+    pointer.y < debugTapZoneSize
+  ) {
 
-        debugTapCount++;
+    debugTapCount++;
 
-        clearTimeout(debugTapTimer);
+    clearTimeout(debugTapTimer);
 
-        debugTapTimer = setTimeout(() => {
-            debugTapCount = 0;
-        }, 1200);
+    debugTapTimer = setTimeout(() => {
+      debugTapCount = 0;
+    }, 1200);
 
-        if (debugTapCount === 3) {
-            debugVisible = !debugVisible;
-            debugPanel.setVisible(debugVisible);
-            debugTapCount = 0;
-        }
-
-        return true;
+    if (debugTapCount === 3) {
+      debugVisible = !debugVisible;
+      debugPanel.setVisible(debugVisible);
+      debugTapCount = 0;
     }
 
-    return false;
+    return true;
+  }
+
+  return false;
 }

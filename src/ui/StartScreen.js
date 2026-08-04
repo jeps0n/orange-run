@@ -9,7 +9,6 @@ export class StartScreen {
             scene.scale.height / 2
         );
 
-
         this.background = scene.add.rectangle(
             0,
             0,
