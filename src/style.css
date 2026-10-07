@@ -1,18 +1,18 @@
 html,
-
-/* game container (browser space) */
 body {
     margin: 0;
-    padding: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #1b1b1b;
+    background: radial-gradient(circle at 50% 42%, #101a2a 0%, #05070d 60%, #020307 100%);
 }
 
-/* game world */
+body {
+    display: grid;
+    place-items: center;
+}
+
 canvas {
     display: block;
-    margin: 0 auto;
-    border: 4px solid white;
+    box-shadow: 0 0 0 1px rgba(255, 122, 0, 0.22), 0 0 48px rgba(0, 0, 0, 0.78);
 }

@@ -1,164 +1,76 @@
 # Orange Run
 
-*** 🎮 PLAY THE GAME: https://jeps0n.github.io/orange-run/ ***
+🎮 **Play:** https://jeps0n.github.io/orange-run/
 
-A fast-paced arcade dodge game built with **Phaser 3** and **JavaScript**.
-
-Orange Run started as a simple movement and collision prototype and evolved into a small, polished game focused on responsive controls, gameplay feedback, and clean code organization.
-
-The goal is simple: control the orange player, avoid obstacles, and survive as long as possible while the challenge increases.
-
----
+Orange Run is a small perspective arcade runner built with **Phaser 4** and **JavaScript**. The player moves across a neon runway, avoids incoming hazards, intercepts power-ups, and survives as the approach speed increases.
 
 ## Gameplay
 
-* Move the player and avoid incoming obstacles
-* Survive longer to increase your score
-* React to collisions with visual and camera feedback
-* Use desktop or mobile controls
-
-The focus of the project was not only making the game functional, but making each interaction feel responsive and intentional.
-
----
-
-## Features
- 
-### Gameplay Systems
-
-* Player movement system
-* Obstacle spawning and movement
-* Collision detection
-* Score tracking
-* Game state management
-
-### Player Feedback
-
-* Camera shake on collision
-* Flash and impact effect when hit
-* Animated score updates
-* Speed-based background movement
-
-### Controls
-
-* Keyboard controls for desktop
-* Touch controls for mobile
-* Three-tap debug toggle for mobile testing
-
-### Developer Tools
-
-* Toggleable debug panel
-* Live player velocity information
-* Obstacle speed display
-* FPS monitoring
-* Input debugging
-
----
-
-## Project Structure
-
-The project is organized around separate responsibilities rather than placing all logic inside the main game scene.
-
-```
-src/
-│
-├── entities/
-│   ├── Player.js
-│   └── Obstacle.js
-│
-├── systems/
-│   ├── GameState.js
-│   └── movement.js
-│
-├── ui/
-│   ├── StartScreen.js
-│   ├── GameOverScreen.js
-│   ├── ScoreDisplay.js
-│   ├── DebugPanel.js
-│   └── BackgroundEffect.js
-│
-├── input.js
-└── main.js
-```
-
-This structure allows gameplay logic, visual components, and debugging tools to evolve independently.
-
----
-
-## Technical Decisions
-
-### Phaser 3
-
-I chose Phaser because it provides a strong foundation for 2D game development while still allowing direct control over gameplay systems and rendering.
-
-### Component Separation
-
-Instead of keeping all functionality inside one scene file, game objects, systems, and UI elements are separated into their own modules.
-
-This made it easier to:
-
-* iterate on gameplay quickly
-* add feedback effects
-* debug issues
-* keep the codebase maintainable
-
-### Shared Gameplay Variables
-
-The background movement uses the same speed value as the obstacle system, keeping visual feedback synchronized with gameplay difficulty.
-
----
-
-## Running the Project
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Open the local development URL in your browser.
-
----
+- Red hazards approach from the horizon along the runway.
+- Movement is constrained to the perspective-weighted playable surface.
+- **Shield** absorbs one collision and is shown as a separate cyan energy field around the orange player.
+- **Pulse** grants three forward-only attacks. Its narrow runway-space hit window rewards timing instead of acting like a general screen-clearing weapon.
+- Hazards accelerate as the score increases.
 
 ## Controls
 
 ### Desktop
 
-* **WASD / Arrow Keys** — Move
-* **Space** — Start / Restart
-* **D** — Toggle debug panel
+- **Arrow keys / WASD** — Move
+- **Space** — Start / restart / use Pulse when charged
+- **F2** — Toggle debug panel
 
 ### Mobile
 
-* Touch joystick — Move player
-* Triple tap top-left corner — Toggle debug panel
+- **Drag** — Virtual joystick movement
+- **PULSE** — Use a Pulse charge when available
+- **Triple tap top-left** — Toggle debug panel
 
----
+## Architecture
 
-## Future Improvements
+```text
+src/
+├── entities/
+│   ├── Obstacle.js
+│   ├── Player.js
+│   └── PowerUp.js
+├── systems/
+│   ├── GameState.js
+│   ├── PulseAttack.js
+│   ├── RunwayGeometry.js
+│   └── movement.js
+├── ui/
+│   ├── BackgroundRenderer.js
+│   ├── DebugPanel.js
+│   ├── GameOverScreen.js
+│   ├── RunwayRenderer.js
+│   ├── ScoreDisplay.js
+│   ├── StartScreen.js
+│   └── VisualEffects.js
+├── input.js
+└── main.js
+```
 
-Potential additions:
+### Perspective model
 
-* More obstacle patterns
-* Additional gameplay mechanics
-* Sound effects
-* High score tracking
-* Expanded difficulty progression
+Gameplay entities store **lane** and **depth** rather than arbitrary screen-space motion. `RunwayGeometry` projects those world values into screen X/Y, runway width, and scale using one nonlinear perspective curve. The runway grid, player bounds, hazards, power-ups, collisions, and Pulse targeting therefore share the same spatial model.
 
----
+The rendering foundation keeps gameplay objects on a single shared projection while presentation effects remain isolated from gameplay state. Pulse and Shield use lightweight energy effects without particle, dust, or trail systems.
 
-## What I Learned
+Hazard movement is shape-specific: Squares travel straight, Triangles reflect diagonally from runway edges, and Circles sweep across curved paths.
 
-Building Orange Run helped me practice designing a small game with a focus on maintainability rather than just making a prototype work.
+## Development
 
-The biggest areas of growth were:
+```bash
+npm install
+npm run dev
+```
 
-* separating systems by responsibility
-* creating reusable UI components
-* designing feedback that improves player experience
-* balancing clean architecture with rapid iteration
+Production check:
+
+```bash
+npm run build
+npm run preview
+```
+
+GitHub Pages deployment is configured in `.github/workflows/deploy.yml`.

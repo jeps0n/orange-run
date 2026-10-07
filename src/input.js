@@ -1,101 +1,59 @@
-// Handles all player input.
-// Keyboard and touch controls are converted into the same movement format.
+const JOYSTICK_RADIUS = 40;
+const JOYSTICK_DEAD_ZONE = 8;
+const PULSE_ZONE = { x: 520, y: 380 };
 
-let cursors;
-
-// Touch joystick state
-// Stores where the player started touching and where the finger currently is.
+let movementKeys;
 let touchActive = false;
-let touchPosition = {
-    x: 0,
-    y: 0
-};
+let touchPosition = { x: 0, y: 0 };
+let joystickCenter = { x: 0, y: 0 };
+let joystickVisual = { base: null, thumb: null };
 
-let joystickCenter = {
-    x: 0,
-    y: 0
-};
-
-let joystickVisual = {
-    base: null,
-    thumb: null,
-    radius: 40
-};
-
-// Setup controls when the game starts
 export function setupInput(scene) {
+    movementKeys = {
+        wasd: scene.input.keyboard.addKeys("W,A,S,D"),
+        arrows: scene.input.keyboard.createCursorKeys()
+    };
 
-    cursors = scene.input.keyboard.createCursorKeys();
+    joystickVisual = {
+        base: scene.add
+            .circle(0, 0, JOYSTICK_RADIUS, 0xffffff, 0.08)
+            .setStrokeStyle(1, 0xffffff, 0.3)
+            .setDepth(12)
+            .setVisible(false),
+        thumb: scene.add
+            .circle(0, 0, 14, 0xff8a00, 0.75)
+            .setDepth(13)
+            .setVisible(false)
+    };
 
-    // Create the visual joystick base (outer circle).
-    // This is only a UI element and does not control player movement.
-    joystickVisual.base = scene.add.circle(
-        0,                       // Starting x position (updated when touch begins)
-        0,                       // Starting y position (updated when touch begins)
-        joystickVisual.radius,   // Size of the joystick movement area
-        0xffffff,                // White color
-        0.25                     // Transparency (alpha)
-    );
-
-
-    // Create the visual joystick thumb (inner circle).
-    // This follows the player's finger position within the joystick radius.
-    joystickVisual.thumb = scene.add.circle(
-        0,       // Starting x position
-        0,       // Starting y position
-        18,      // Thumb size
-        0xffffff,// White color
-        0.5      // Transparency (alpha)
-    );
-    joystickVisual.base.setVisible(false);
-    joystickVisual.thumb.setVisible(false);
-
-    // Start tracking a touch and set the temporary joystick center.
     scene.input.on("pointerdown", (pointer) => {
+        if (isPulsePointer(pointer)) return;
+
         touchActive = true;
-
-        joystickCenter.x = pointer.x;
-        joystickCenter.y = pointer.y;
-
-        touchPosition.x = pointer.x;
-        touchPosition.y = pointer.y;
+        joystickCenter = { x: pointer.x, y: pointer.y };
+        touchPosition = { x: pointer.x, y: pointer.y };
 
         joystickVisual.base
-        .setPosition(pointer.x, pointer.y)
-        .setVisible(true);
-
+            .setPosition(pointer.x, pointer.y)
+            .setVisible(true)
+            .setAlpha(1);
         joystickVisual.thumb
-        .setPosition(pointer.x, pointer.y)
-        .setVisible(true);
-
-        scene.tweens.add({
-        targets: [
-            joystickVisual.base,
-            joystickVisual.thumb
-        ],
-            alpha: 1,
-            duration: 150
-        });
+            .setPosition(pointer.x, pointer.y)
+            .setVisible(true)
+            .setAlpha(1);
     });
-    
-    // Update finger position while the player is holding the screen.
+
     scene.input.on("pointermove", (pointer) => {
         if (!touchActive) return;
-
-        touchPosition.x = pointer.x;
-        touchPosition.y = pointer.y;
+        touchPosition = { x: pointer.x, y: pointer.y };
     });
 
     scene.input.on("pointerup", () => {
         touchActive = false;
-
         scene.tweens.add({
-            targets: [
-                joystickVisual.base,
-                joystickVisual.thumb
-            ],
+            targets: [joystickVisual.base, joystickVisual.thumb],
             alpha: 0,
-            duration: 200,
+            duration: 120,
             onComplete: () => {
                 joystickVisual.base.setVisible(false);
                 joystickVisual.thumb.setVisible(false);
@@ -104,91 +62,64 @@ export function setupInput(scene) {
     });
 }
 
-function updateJoystickVisual() {
-
-    const dx = touchPosition.x - joystickCenter.x;
-    const dy = touchPosition.y - joystickCenter.y;
-
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    let thumbX = touchPosition.x;
-    let thumbY = touchPosition.y;
-
-    if (distance > joystickVisual.radius) {
-
-        const angle = Math.atan2(dy, dx);
-
-        thumbX =
-            joystickCenter.x +
-            Math.cos(angle) * joystickVisual.radius;
-
-        thumbY =
-            joystickCenter.y +
-            Math.sin(angle) * joystickVisual.radius;
+export function getMovement() {
+    const keyboardMovement = getKeyboardMovement();
+    if (keyboardMovement.x !== 0 || keyboardMovement.y !== 0) {
+        return keyboardMovement;
     }
 
-    joystickVisual.thumb.setPosition(
-        thumbX,
-        thumbY
-    );
+    return getTouchMovement();
 }
 
-// Returns current movement direction.
-// Keyboard and touch both output values from -1 to 1.
-export function getMovement() {
+function getKeyboardMovement() {
+    const { wasd, arrows } = movementKeys;
 
-    const keyboardX =
-        (cursors.right.isDown ? 1 : 0) -
-        (cursors.left.isDown ? 1 : 0);
+    const movingLeft = wasd.A.isDown || arrows.left.isDown;
+    const movingRight = wasd.D.isDown || arrows.right.isDown;
+    const movingUp = wasd.W.isDown || arrows.up.isDown;
+    const movingDown = wasd.S.isDown || arrows.down.isDown;
 
-    const keyboardY =
-        (cursors.down.isDown ? 1 : 0) -
-        (cursors.up.isDown ? 1 : 0);
+    return {
+        x: Number(movingRight) - Number(movingLeft),
+        y: Number(movingDown) - Number(movingUp)
+    };
+}
 
-    // Keyboard always takes priority
-    if (keyboardX !== 0 || keyboardY !== 0) {
-        return {
-            x: keyboardX,
-            y: keyboardY
-        };
-    }
-
-    // No touch active
-    if (!touchActive) {
-        return {
-            x: 0,
-            y: 0
-        };
-    }
+function getTouchMovement() {
+    if (!touchActive) return { x: 0, y: 0 };
 
     const dx = touchPosition.x - joystickCenter.x;
     const dy = touchPosition.y - joystickCenter.y;
+    const distance = Math.hypot(dx, dy);
 
-    updateJoystickVisual();
+    updateJoystickVisual(dx, dy, distance);
 
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    const deadZone = 8;
-
-    if (distance < deadZone) {
-        return {
-            x: 0,
-            y: 0
-        };
-    }
+    if (distance < JOYSTICK_DEAD_ZONE) return { x: 0, y: 0 };
 
     const angle = Math.atan2(dy, dx);
-
     return {
         x: Math.round(Math.cos(angle)),
         y: Math.round(Math.sin(angle))
     };
 }
 
+function updateJoystickVisual(dx, dy, distance) {
+    if (distance <= JOYSTICK_RADIUS) {
+        joystickVisual.thumb.setPosition(touchPosition.x, touchPosition.y);
+        return;
+    }
+
+    const angle = Math.atan2(dy, dx);
+    joystickVisual.thumb.setPosition(
+        joystickCenter.x + Math.cos(angle) * JOYSTICK_RADIUS,
+        joystickCenter.y + Math.sin(angle) * JOYSTICK_RADIUS
+    );
+}
+
+export function isPulsePointer(pointer) {
+    return pointer.x >= PULSE_ZONE.x && pointer.y >= PULSE_ZONE.y;
+}
+
 export function getInputDebug() {
-    return {
-        touchActive,
-        joystickCenter,
-        touchPosition
-    };
+    return { touchActive, joystickCenter, touchPosition };
 }
