@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { getWorldSpeedForScore } from "../src/systems/SpeedProgression.js";
-
 test("world speed increases by 0.02 per score and caps at score 69", () => {
     for (const [score, expected] of [
         [0, 0.20], [10, 0.40], [20, 0.60], [30, 0.80],

@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PowerUpSystem } from "../src/systems/PowerUpSystem.js";
-
 function createSystem(randomValues = [0, 5]) {
     const spawns = [];
     const grants = [];
@@ -23,7 +22,6 @@ function createSystem(randomValues = [0, 5]) {
     });
     return { system, powerUp, spawns, grants, effects };
 }
-
 test("first pickup appears at score 4; scheduling advances once while active", () => {
     const { system, powerUp, spawns } = createSystem([0, 5, 1, 8]);
     system.maybeSpawn(3);
@@ -40,7 +38,6 @@ test("first pickup appears at score 4; scheduling advances once while active", (
     assert.deepEqual(spawns, ["shield", "pulse"]);
     assert.equal(system.nextSpawnScore, 17);
 });
-
 test("shield and pulse pickups grant the intended abilities exactly once", () => {
     const { system, powerUp, grants, effects } = createSystem();
     powerUp.spawn("shield");
@@ -52,7 +49,6 @@ test("shield and pulse pickups grant the intended abilities exactly once", () =>
     assert.equal(effects.length, 2);
     assert.deepEqual(effects.map(effect => effect.slice(0, 2)), [[10, 20], [10, 20]]);
 });
-
 test("pickup is collected only when player overlaps it", () => {
     const { system, powerUp, grants } = createSystem();
     powerUp.spawn("shield");

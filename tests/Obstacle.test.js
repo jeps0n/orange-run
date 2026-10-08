@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
-
 // Replace only Phaser's rendering/random helpers; exercise the real Obstacle class.
 const phaserStub = `
     const MathHelpers = {
@@ -17,7 +16,6 @@ const phaserStub = `
         Utils: { Array: { GetRandom: values => values[0] } }
     };
 `;
-
 registerHooks({
     resolve(specifier, context, nextResolve) {
         if (specifier === "phaser") {
@@ -26,9 +24,7 @@ registerHooks({
         return nextResolve(specifier, context);
     }
 });
-
 const { Obstacle } = await import("../src/entities/Obstacle.js");
-
 function createObstacle() {
     const graphics = {
         setDepth() { return this; },
@@ -51,13 +47,11 @@ function createObstacle() {
     };
     return new Obstacle(scene, runway);
 }
-
 test("obstacle initializes at the starting world speed without a runtime error", () => {
     const obstacle = createObstacle();
     assert.equal(obstacle.worldSpeed, 0.20);
     assert.equal(obstacle.active, false);
 });
-
 test("obstacle applies the score-based speed progression correctly", () => {
     const obstacle = createObstacle();
     for (const [score, expectedSpeed] of [

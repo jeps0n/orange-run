@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
-
 // Load the real application entry point without opening a browser or canvas.
 // Phaser is replaced only at the platform boundary; gameplay modules stay real.
 const phaserStub = `
@@ -31,10 +30,8 @@ registerHooks({
         return nextResolve(specifier, context);
     }
 });
-
 const phaserModule = await import(phaserUrl);
 await import("../src/main.js");
-
 function createDisplay() {
     const display = {
         x: 0, y: 0, width: 640, height: 480, scaleX: 1, scaleY: 1,
@@ -55,7 +52,6 @@ function createDisplay() {
     };
     return display;
 }
-
 function createScene() {
     const listeners = new Map();
     const scene = {
@@ -80,19 +76,16 @@ function createScene() {
     };
     return { scene, listeners };
 }
-
 test("scene initializes real gameplay systems and runs its first update", () => {
     assert.equal(typeof phaserModule.gameConfig.scene.create, "function");
     const { scene } = createScene();
     phaserModule.gameConfig.scene.preload.call(scene);
     phaserModule.gameConfig.scene.create.call(scene);
-
     assert.equal(scene.gameRuntime.obstacle.worldSpeed, 0.20);
     assert.equal(scene.gameRuntime.controller.canPlay, false);
     assert.doesNotThrow(() => phaserModule.gameConfig.scene.update.call(scene, 0, 16));
     assert.equal(scene.gameRuntime.pulseButton.visible, false);
 });
-
 test("scene starts gameplay through its real input wiring", () => {
     const { scene, listeners } = createScene();
     phaserModule.gameConfig.scene.create.call(scene);

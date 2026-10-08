@@ -4,11 +4,9 @@
       <rect x="10" y="10" width="236" height="236" rx="44" />
     </clipPath>
   </defs>
-
   <!-- Everything outside this rounded tile remains transparent. -->
   <g clip-path="url(#tile)">
     <rect x="10" y="10" width="236" height="236" fill="#06111e" />
-
     <!-- Sparse 4 x 4 grid: 16 cells total. -->
     <g fill="none" stroke-linecap="square">
       <path d="M69 10V246 M187 10V246 M10 69H246 M10 187H246"
@@ -16,7 +14,6 @@
       <path d="M128 10V246 M10 128H246"
             stroke="#247eb7" stroke-width="6" />
     </g>
-
     <!-- The player mark stays dominant even at favicon size. -->
     <circle cx="128" cy="128" r="76" fill="#ff7a18" />
   </g>

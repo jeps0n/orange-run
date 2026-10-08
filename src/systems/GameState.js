@@ -1,5 +1,4 @@
 const HIGH_SCORE_STORAGE_KEY = "orange-run-high-score";
-
 export class GameState {
     constructor(scene) {
         this.started = scene.registry.get("hasStarted") ?? false;
@@ -8,28 +7,22 @@ export class GameState {
         this.highScore = loadHighScore();
         this.highScoreAtRunStart = this.highScore;
     }
-
     startGame() {
         this.started = true;
     }
-
     endGame() {
         this.gameOver = true;
     }
-
     addScore() {
         this.score += 1;
-
         // Capture the first new record of the run so the UI can announce the
         // high-score event once instead of on every subsequent scoring point.
         if (this.score <= this.highScore) return false;
-
         this.highScore = this.score;
         saveHighScore(this.highScore);
         return this.score === this.highScoreAtRunStart + 1;
     }
 }
-
 function loadHighScore() {
     try {
         const storedScore = Number.parseInt(localStorage.getItem(HIGH_SCORE_STORAGE_KEY) ?? "0", 10);
@@ -38,7 +31,6 @@ function loadHighScore() {
         return 0;
     }
 }
-
 function saveHighScore(score) {
     try {
         localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(score));

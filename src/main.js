@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import "./style.css";
+import { setupTechSignature } from "./ui/TechSignature.js";
 import { setupInput, getMovement, getInputDebug, isPulsePointer, setupDebugGesture } from "./input.js";
 import { Player } from "./entities/Player.js";
 import { Obstacle } from "./entities/Obstacle.js";
@@ -14,12 +15,10 @@ import { DebugPanel } from "./ui/DebugPanel.js";
 import { RunwayRenderer } from "./ui/RunwayRenderer.js";
 import { BackgroundRenderer } from "./ui/BackgroundRenderer.js";
 import { VisualEffects } from "./ui/VisualEffects.js";
-
 const WIDTH = 640;
 const HEIGHT = 480;
 const PULSE_COLOR = 0xa8ff2a;
-
-new Phaser.Game({
+const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: "app",
     scale: {
@@ -31,11 +30,10 @@ new Phaser.Game({
     backgroundColor: "#05070d",
     scene: { preload, create, update }
 });
-
+setupTechSignature(game);
 function preload() {
     this.load.image("desert-background", "./art/desert-background.png");
 }
-
 function create() {
     const runway = new RunwayGeometry({ width: WIDTH, height: HEIGHT });
     new BackgroundRenderer(this, runway);
@@ -50,7 +48,6 @@ function create() {
     const gameOverScreen = new GameOverScreen(this);
     const startScreen = !gameState.started ? new StartScreen(this) : null;
     const pulseButton = createPulseButton(this);
-
     const controller = new GameController({
         runway,
         player,
@@ -61,7 +58,6 @@ function create() {
         onStart: () => this.registry.set("hasStarted", true),
         onRestart: () => this.scene.restart()
     });
-
     let debugVisible = false;
     const toggleDebug = () => {
         debugVisible = !debugVisible;
@@ -70,7 +66,6 @@ function create() {
     debugPanel.setVisible(debugVisible);
     const debugGesture = setupDebugGesture(toggleDebug);
     setupInput(this);
-
     const continueKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     const debugKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F2);
     this.input.on("pointerdown", (pointer) => {
@@ -78,7 +73,6 @@ function create() {
         if (controller.canPlay && isPulsePointer(pointer)) controller.usePulse();
         else controller.handleAction();
     });
-
     this.events.once("shutdown", () => debugGesture.destroy());
     this.gameRuntime = {
         controller,
@@ -92,7 +86,6 @@ function create() {
         getDebugVisible: () => debugVisible
     };
 }
-
 function update(_time, deltaMs) {
     const {
         controller,
@@ -106,12 +99,10 @@ function update(_time, deltaMs) {
         getDebugVisible
     } = this.gameRuntime;
     const movement = getMovement();
-
     if (Phaser.Input.Keyboard.JustDown(debugKey)) toggleDebug();
     if (getDebugVisible()) {
         debugPanel.update(player, obstacle, movement, getInputDebug(), this.game.loop.actualFps);
     }
-
     // Cap frame time after stalls so one delayed frame cannot advance gameplay
     // far enough to skip collisions or create a large difficulty jump.
     controller.update(Math.min(deltaMs / 1000, 0.05), movement);
@@ -121,7 +112,6 @@ function update(_time, deltaMs) {
         else controller.handleAction();
     }
 }
-
 function createPulseButton(scene) {
     const button = scene.add.container(575, 430).setDepth(14).setVisible(false);
     const circle = scene.add.circle(0, 0, 28, PULSE_COLOR, 0.10)

@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { overlapsInWorldSpace, playerHitsObstacle, playerCollectsPowerUp, pulseHitsObstacle } from '../src/systems/CollisionSystem.js';
-
 test('player collision uses lane and depth tolerances', () => {
     const player = { lane: 0, depth: 0.8 };
     assert.equal(overlapsInWorldSpace(player, { lane: 0.13, depth: 0.8 }), true);
@@ -9,7 +8,6 @@ test('player collision uses lane and depth tolerances', () => {
     assert.equal(playerHitsObstacle(player, { lane: 0, depth: 0.8, active: false }), false);
     assert.equal(playerCollectsPowerUp(player, { lane: 0.14, depth: 0.8, active: true }), true);
 });
-
 test('pulse hit uses projection-aware padding', () => {
     const runway = {
         project: () => ({ scale: 1, bounds: { width: 200 } }),

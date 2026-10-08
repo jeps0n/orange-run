@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { GameState } from "../src/systems/GameState.js";
-
 function withStorage(storage, run) {
     const previous = globalThis.localStorage;
     globalThis.localStorage = storage;
@@ -10,9 +9,7 @@ function withStorage(storage, run) {
         else globalThis.localStorage = previous;
     }
 }
-
 const scene = { registry: { get: () => false } };
-
 test("starting and ending a run updates its state", () => {
     withStorage({ getItem: () => null }, () => {
         const state = new GameState(scene);
@@ -23,7 +20,6 @@ test("starting and ending a run updates its state", () => {
         assert.equal(state.gameOver, true);
     });
 });
-
 test("high score is saved and new-record notification happens only once", () => {
     const writes = [];
     withStorage({ getItem: () => "2", setItem: (...args) => writes.push(args) }, () => {
@@ -39,7 +35,6 @@ test("high score is saved and new-record notification happens only once", () => 
         ]);
     });
 });
-
 test("unavailable or invalid storage does not interrupt gameplay", () => {
     withStorage({ getItem: () => { throw Error("blocked"); }, setItem: () => { throw Error("blocked"); } }, () => {
         const state = new GameState(scene);

@@ -4,7 +4,6 @@ const FAR_OFFSET = 0.17;
 const START_HALF_LANE_WIDTH = 0.08;
 const END_HALF_LANE_WIDTH = 0.20;
 const HALF_DEPTH_THICKNESS = 0.014;
-
 /**
  * One authoritative, moving Pulse volume.
  *
@@ -20,18 +19,15 @@ export class PulseAttack {
         this.progress = 0;
         this.finished = false;
     }
-
     update(deltaSeconds) {
         this.elapsedSeconds += deltaSeconds;
         this.progress = Math.min(this.elapsedSeconds / PULSE_DURATION_SECONDS, 1);
         this.finished = this.progress >= 1;
     }
-
     getVolume() {
         const offset = lerp(NEAR_OFFSET, FAR_OFFSET, this.progress);
         const centerDepth = this.originDepth - offset;
         const halfLaneWidth = lerp(START_HALF_LANE_WIDTH, END_HALF_LANE_WIDTH, this.progress);
-
         return {
             centerLane: this.originLane,
             centerDepth,
@@ -40,7 +36,6 @@ export class PulseAttack {
             progress: this.progress
         };
     }
-
     contains(
         lane,
         depth,
@@ -52,11 +47,9 @@ export class PulseAttack {
             <= volume.halfLaneWidth + lanePadding;
         const insideDepth = Math.abs(depth - volume.centerDepth)
             <= volume.halfDepthThickness + depthPadding;
-
         return insideLane && insideDepth;
     }
 }
-
 function lerp(start, end, progress) {
     return start + (end - start) * progress;
 }

@@ -6,15 +6,52 @@ body {
     overflow: hidden;
     background: radial-gradient(circle at 50% 42%, #101a2a 0%, #05070d 60%, #020307 100%);
 }
-
 #app {
     position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
 }
-
 canvas {
     display: block;
     box-shadow: 0 0 0 1px rgba(255, 122, 0, 0.22), 0 0 48px rgba(0, 0, 0, 0.78);
+}
+/* The layout controller measures both gutters before showing the entire tray. */
+.tech-signature {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    width: max-content;
+    max-width: none;
+    box-sizing: border-box;
+    pointer-events: none;
+    text-align: right;
+    white-space: nowrap;
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 148, 28, 0.38);
+    border-radius: 9px;
+    background: rgba(5, 12, 22, 0.91);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.35;
+    letter-spacing: 0.055em;
+    visibility: hidden;
+}
+.tech-signature[data-zone="bottom"] {
+    text-align: center;
+}
+.tech-signature__credit {
+    color: #d6dde7;
+    font-size: 11px;
+}
+.tech-signature__credit strong {
+    color: #ff941c;
+    font-weight: 700;
+}
+.tech-signature__stack {
+    margin-top: 4px;
+    color: #42dce9;
+    font-size: 10px;
+    letter-spacing: 0.11em;
 }

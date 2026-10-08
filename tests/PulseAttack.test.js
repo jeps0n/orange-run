@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PulseAttack } from "../src/systems/PulseAttack.js";
-
 test("pulse advances away from the player and widens over its lifetime", () => {
     const pulse = new PulseAttack({ lane: 0.3, depth: 0.84 });
     const initial = pulse.getVolume();
@@ -19,7 +18,6 @@ test("pulse advances away from the player and widens over its lifetime", () => {
     pulse.update(1);
     assert.equal(pulse.progress, 1);
 });
-
 test("pulse collision respects lane and depth padding", () => {
     const pulse = new PulseAttack({ lane: 0, depth: 0.8 });
     const { centerDepth } = pulse.getVolume();

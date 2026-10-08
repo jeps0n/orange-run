@@ -1,7 +1,6 @@
 const SHIELD_COLOR = 0x42e8ff;
 const PULSE_COLOR = 0xa8ff2a;
 const DANGER_COLOR = 0xff334f;
-
 /**
  * Presentation-only effects.
  *
@@ -14,30 +13,25 @@ export class VisualEffects {
         this.scene = scene;
         this.runway = runway;
     }
-
     startPulse(pulse) {
         this.endPulse();
         this.pulseGraphics = this.scene.add.graphics().setDepth(8);
         this.updatePulse(pulse);
     }
-
     updatePulse(pulse) {
         if (!this.pulseGraphics) return;
         this.pulseGraphics.clear();
         drawPulseWave(this.pulseGraphics, this.runway, pulse.getVolume());
     }
-
     endPulse() {
         this.pulseGraphics?.destroy();
         this.pulseGraphics = null;
     }
-
     shieldImpact(x, y) {
         this.shockwave(x, y, SHIELD_COLOR, 82, 4);
         this.flash(x, y, SHIELD_COLOR, 18);
         this.scene.cameras.main.shake(85, 0.004);
     }
-
     pulseImpact(
         x,
         y,
@@ -49,16 +43,13 @@ export class VisualEffects {
         this.hazardBreakup(x, y, obstacleScale, hazardType);
         this.scene.cameras.main.shake(45, 0.0025);
     }
-
     pickup(x, y, color) {
         this.shockwave(x, y, color, 34, 2);
     }
-
     playerDeath(x, y) {
         this.shockwave(x, y, DANGER_COLOR, 68, 4);
         this.scene.cameras.main.shake(160, 0.009);
     }
-
     shockwave(
         x,
         y,
@@ -70,7 +61,6 @@ export class VisualEffects {
             .circle(x, y, 10, 0x000000, 0)
             .setStrokeStyle(lineWidth, color, 0.95)
             .setDepth(9);
-
         this.scene.tweens.add({
             targets: ring,
             scale: radius / 10,
@@ -80,7 +70,6 @@ export class VisualEffects {
             onComplete: () => ring.destroy()
         });
     }
-
     flash(x, y, color, radius) {
         const flash = this.scene.add.circle(x, y, radius, color, 0.72).setDepth(9);
         this.scene.tweens.add({
@@ -92,20 +81,17 @@ export class VisualEffects {
             onComplete: () => flash.destroy()
         });
     }
-
     hazardBreakup(x, y, obstacleScale, hazardType) {
         // Every hazard breaks as the same rigid red material. The fragment
         // silhouette follows the owner so Triangle and Circle deaths still
         // read as members of the same faction.
         const pieces = getBreakupPieces(hazardType);
-
         for (const piece of pieces) {
             const fragment = this.scene.add
                 .polygon(x, y, piece.points, DANGER_COLOR)
                 .setStrokeStyle(1.5, 0xff5a70, 0.9)
                 .setScale(obstacleScale)
                 .setDepth(8);
-
             this.scene.tweens.add({
                 targets: fragment,
                 x: x + piece.offsetX * obstacleScale,
@@ -121,7 +107,6 @@ export class VisualEffects {
         }
     }
 }
-
 function getBreakupPieces(hazardType) {
     if (hazardType === "triangle") {
         return [
@@ -131,7 +116,6 @@ function getBreakupPieces(hazardType) {
             { points: [0, -1, 11, 10, 0, 13], offsetX: 31, offsetY: -17, rotation: -0.29 }
         ];
     }
-
     if (hazardType === "circle") {
         return [
             { points: [-12, -5, -8, -11, 0, -13, 0, 0, -12, 3], offsetX: -34, offsetY: -38, rotation: -0.40 },
@@ -140,7 +124,6 @@ function getBreakupPieces(hazardType) {
             { points: [0, 0, 12, 3, 8, 11, 0, 13], offsetX: 39, offsetY: -18, rotation: -0.30 }
         ];
     }
-
     return [
         { points: [-12, -12, 1, -12, -2, -1, -11, 2], offsetX: -34, offsetY: -39, rotation: -0.42 },
         { points: [1, -12, 12, -12, 12, 1, 3, -2], offsetX: 35, offsetY: -42, rotation: 0.36 },
@@ -148,13 +131,10 @@ function getBreakupPieces(hazardType) {
         { points: [0, -1, 12, 2, 12, 12, 1, 12], offsetX: 41, offsetY: -18, rotation: -0.31 }
     ];
 }
-
 /** Draw the exact moving attack volume as a shallow forward pressure front. */
 function drawPulseWave(graphics, runway, volume) {
     const alpha = 0.95 * (1 - volume.progress * 0.68);
-
     drawPressureFront(graphics, runway, volume, 4, alpha);
-
     // Subtle echoes sit inside the same moving volume. They are presentation
     // only and never extend beyond the collision front.
     drawPressureFront(graphics, runway, {
@@ -163,7 +143,6 @@ function drawPulseWave(graphics, runway, volume) {
         halfLaneWidth: volume.halfLaneWidth * 0.82
     }, 2, alpha * 0.46);
 }
-
 function drawPressureFront(
     graphics,
     runway,
@@ -179,7 +158,6 @@ function drawPressureFront(
         volume.centerLane + volume.halfLaneWidth,
         volume.centerDepth
     );
-
     // Forward is toward the horizon (smaller depth). Pulling the center forward
     // produces a shallow pressure-front bow.
     const bowDepth = Math.max(
@@ -187,11 +165,9 @@ function drawPressureFront(
         volume.centerDepth - volume.halfDepthThickness * 0.72
     );
     const center = runway.project(volume.centerLane, bowDepth);
-
     graphics.lineStyle(lineWidth, PULSE_COLOR, alpha);
     graphics.beginPath();
     graphics.moveTo(left.x, left.y);
-
     const segmentCount = 14;
     for (let segment = 1; segment <= segmentCount; segment += 1) {
         const t = segment / segmentCount;
@@ -204,6 +180,5 @@ function drawPressureFront(
             + t * t * right.y;
         graphics.lineTo(x, y);
     }
-
     graphics.strokePath();
 }

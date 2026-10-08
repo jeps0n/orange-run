@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { GameController } from "../src/systems/GameController.js";
-
 function createGame({ shielded = false } = {}) {
     const calls = [];
     const gameState = {
@@ -46,7 +45,6 @@ function createGame({ shielded = false } = {}) {
     });
     return { controller, gameState, player, obstacle, calls };
 }
-
 test("starting a run activates gameplay; action after game over restarts scene", () => {
     const { controller, gameState, calls } = createGame();
     assert.equal(controller.canPlay, false);
@@ -58,7 +56,6 @@ test("starting a run activates gameplay; action after game over restarts scene",
     controller.handleAction();
     assert.ok(calls.some(call => call[0] === "restart"));
 });
-
 test("a passed obstacle scores once and resets at the new score", () => {
     const { controller, gameState, obstacle, calls } = createGame();
     controller.handleAction();
@@ -70,7 +67,6 @@ test("a passed obstacle scores once and resets at the new score", () => {
     assert.equal(gameState.score, 1);
     assert.ok(calls.some(call => call[0] === "reset" && call[1] === 1));
 });
-
 test("shield consumes a hit; an unshielded hit ends the run", () => {
     const { controller, gameState, obstacle, calls } = createGame({ shielded: true });
     controller.handleAction();
