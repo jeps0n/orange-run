@@ -41,7 +41,12 @@ export class PulseAttack {
         };
     }
 
-    contains(lane, depth, lanePadding = 0, depthPadding = 0) {
+    contains(
+        lane,
+        depth,
+        lanePadding = 0,
+        depthPadding = 0
+    ) {
         const volume = this.getVolume();
         const insideLane = Math.abs(lane - volume.centerLane)
             <= volume.halfLaneWidth + lanePadding;

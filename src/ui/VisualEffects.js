@@ -38,7 +38,12 @@ export class VisualEffects {
         this.scene.cameras.main.shake(85, 0.004);
     }
 
-    pulseImpact(x, y, obstacleScale = 1, hazardType = "square") {
+    pulseImpact(
+        x,
+        y,
+        obstacleScale = 1,
+        hazardType = "square"
+    ) {
         // Pulse energy stays lime; the destroyed hazard keeps its red material
         // identity as a few recognizable pieces shear apart from the hit.
         this.hazardBreakup(x, y, obstacleScale, hazardType);
@@ -54,7 +59,13 @@ export class VisualEffects {
         this.scene.cameras.main.shake(160, 0.009);
     }
 
-    shockwave(x, y, color, radius, lineWidth) {
+    shockwave(
+        x,
+        y,
+        color,
+        radius,
+        lineWidth
+    ) {
         const ring = this.scene.add
             .circle(x, y, 10, 0x000000, 0)
             .setStrokeStyle(lineWidth, color, 0.95)
@@ -153,7 +164,13 @@ function drawPulseWave(graphics, runway, volume) {
     }, 2, alpha * 0.46);
 }
 
-function drawPressureFront(graphics, runway, volume, lineWidth, alpha) {
+function drawPressureFront(
+    graphics,
+    runway,
+    volume,
+    lineWidth,
+    alpha
+) {
     const left = runway.project(
         volume.centerLane - volume.halfLaneWidth,
         volume.centerDepth

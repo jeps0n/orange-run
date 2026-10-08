@@ -85,6 +85,8 @@ export class Player {
     }
 
     move(movement, deltaSeconds) {
+        // Normalize diagonal input so moving on two axes is not faster than
+        // moving on one axis.
         const length = Math.hypot(movement.x, movement.y);
         if (length === 0) return;
 

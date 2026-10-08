@@ -123,3 +123,25 @@ export function isPulsePointer(pointer) {
 export function getInputDebug() {
     return { touchActive, joystickCenter, touchPosition };
 }
+
+export function setupDebugGesture(onToggle) {
+    let tapCount = 0;
+    let resetTimer;
+
+    return {
+        isDebugTap(pointer) {
+            if (pointer.x >= 120 || pointer.y >= 120) return false;
+            tapCount += 1;
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => { tapCount = 0; }, 1200);
+            if (tapCount === 3) {
+                onToggle();
+                tapCount = 0;
+            }
+            return true;
+        },
+        destroy() {
+            clearTimeout(resetTimer);
+        }
+    };
+}

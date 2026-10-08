@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { getWorldSpeedForScore } from "../systems/SpeedProgression.js";
 
 const OBSTACLE_SIZE = 26;
 const OBSTACLE_HALF_WIDTH = OBSTACLE_SIZE / 2;
@@ -9,11 +10,6 @@ const CORE_FILL = 0xffe8e8;
 const START_DEPTH = 0.02;
 const FINISH_DEPTH = 1;
 const PLAYER_REAR_DEPTH = 0.91;
-
-const START_WORLD_SPEED = 0.19;
-const MAX_WORLD_SPEED = 0.73;
-const MAX_SPEED_SCORE = 31;
-const WORLD_SPEED_PER_SCORE = (MAX_WORLD_SPEED - START_WORLD_SPEED) / MAX_SPEED_SCORE;
 
 const TRIANGLE_UNLOCK_SCORE = 10;
 const CIRCLE_UNLOCK_SCORE = 20;
@@ -44,7 +40,7 @@ const HAZARD_TYPES = {
 export class Obstacle {
     constructor(scene, runway) {
         this.runway = runway;
-        this.worldSpeed = START_WORLD_SPEED;
+        this.worldSpeed = getWorldSpeedForScore(0);
         this.lane = 0;
         this.depth = START_DEPTH;
         this.type = HAZARD_TYPES.SQUARE;
@@ -247,11 +243,8 @@ export class Obstacle {
     }
 }
 
-function getWorldSpeedForScore(score) {
-    const cappedScore = Phaser.Math.Clamp(score, 0, MAX_SPEED_SCORE);
-    return Math.min(START_WORLD_SPEED + cappedScore * WORLD_SPEED_PER_SCORE, MAX_WORLD_SPEED);
-}
-
+// Hazard variety unlocks cumulatively: Squares are always available, Triangles
+// begin at score 10, and Circles begin at score 20.
 function chooseHazardType(score) {
     const availableTypes = [HAZARD_TYPES.SQUARE];
     if (score >= TRIANGLE_UNLOCK_SCORE) availableTypes.push(HAZARD_TYPES.TRIANGLE);
@@ -259,6 +252,8 @@ function chooseHazardType(score) {
     return Phaser.Utils.Array.GetRandom(availableTypes);
 }
 
+// Force a minimum lane change for every Circle so a sweep never degenerates
+// into an almost-stationary hazard when its random endpoint is selected.
 function chooseDirectionalSweepFinish(startLane, finishLimit) {
     const canSweepLeft = startLane > -finishLimit + MIN_SWEEP_DISTANCE;
     const canSweepRight = startLane < finishLimit - MIN_SWEEP_DISTANCE;
@@ -277,7 +272,12 @@ function chooseDirectionalSweepFinish(startLane, finishLimit) {
     return Phaser.Math.FloatBetween(startLane + MIN_SWEEP_DISTANCE, finishLimit);
 }
 
-function drawTriangle(graphics, size, stroke = true, offsetY = 0) {
+function drawTriangle(
+    graphics,
+    size,
+    stroke = true,
+    offsetY = 0
+) {
     const half = size / 2;
     const points = [
         new Phaser.Math.Vector2(0, -half + offsetY),

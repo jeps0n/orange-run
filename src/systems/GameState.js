@@ -20,6 +20,8 @@ export class GameState {
     addScore() {
         this.score += 1;
 
+        // Capture the first new record of the run so the UI can announce the
+        // high-score event once instead of on every subsequent scoring point.
         if (this.score <= this.highScore) return false;
 
         this.highScore = this.score;
