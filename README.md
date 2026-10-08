@@ -28,6 +28,8 @@ Orange Run is a small perspective arcade runner built with **Phaser 4** and **Ja
 
 ## Architecture
 
+The game separates Phaser scene lifecycle and input from gameplay rules, entity behavior, and rendering. `main.js` wires the scene together; `GameController` coordinates gameplay without owning the individual systems' calculations.
+
 ```text
 src/
 ├── entities/
@@ -35,10 +37,14 @@ src/
 │   ├── Player.js
 │   └── PowerUp.js
 ├── systems/
+│   ├── CollisionSystem.js
+│   ├── GameController.js
 │   ├── GameState.js
+│   ├── movement.js
+│   ├── PowerUpSystem.js
 │   ├── PulseAttack.js
 │   ├── RunwayGeometry.js
-│   └── movement.js
+│   └── SpeedProgression.js
 ├── ui/
 │   ├── BackgroundRenderer.js
 │   ├── DebugPanel.js
@@ -50,6 +56,14 @@ src/
 ├── input.js
 └── main.js
 ```
+
+### Separation of responsibilities
+
+- **Scene and input:** `main.js` initializes Phaser and connects the frame lifecycle; `input.js` handles desktop and touch controls.
+- **Orchestration and state:** `GameController` coordinates updates across systems; `GameState` tracks the current run's state.
+- **Gameplay systems:** `CollisionSystem` handles collision checks; `PowerUpSystem` manages power-up effects; `PulseAttack` handles Pulse behavior; `SpeedProgression` determines increasing difficulty; `movement.js` contains movement calculations.
+- **Entities:** `Player`, `Obstacle`, and `PowerUp` encapsulate their respective gameplay objects and behavior.
+- **Rendering and screens:** `ui/` contains the runway and background renderers, score display, start/game-over screens, visual effects, and debug panel, keeping presentation separate from gameplay calculations.
 
 ### Perspective model
 
@@ -65,6 +79,14 @@ Hazard movement is shape-specific: Squares travel straight, Triangles reflect di
 npm install
 npm run dev
 ```
+
+Run automated tests:
+
+```bash
+npm test
+```
+
+The `tests/` directory covers core systems and scene integration using Node's built-in test runner.
 
 Production check:
 
